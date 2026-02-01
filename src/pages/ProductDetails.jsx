@@ -106,12 +106,12 @@ const ProductDetails = () => {
 
               <div className="flex items-center gap-4 mb-6">
                 <div className="flex items-center gap-2">
-                  <span className="text-2xl font-medium">
-                    ${product.price.toFixed(2)}
+                  <span className="text-3xl font-bold font-display text-primary">
+                    NPR {product.price.toLocaleString()}
                   </span>
                   {product.originalPrice && (
-                    <span className="text-muted-foreground line-through">
-                      ${product.originalPrice.toFixed(2)}
+                    <span className="text-xl text-gray-500 line-through decoration-red-500/50">
+                      NPR {product.originalPrice.toLocaleString()}
                     </span>
                   )}
                 </div>
@@ -180,7 +180,7 @@ const ProductDetails = () => {
                   onClick={handleBuyNow}
                   className="flex-1 bg-primary text-primary-foreground h-10 px-8 font-medium uppercase tracking-wide text-sm hover:bg-primary/90 transition-colors"
                 >
-                  Buy Now - ${(product.price * quantity).toFixed(2)}
+                  Buy Now - NPR {(product.price * quantity).toFixed(2)}
                 </button>
               </div>
 

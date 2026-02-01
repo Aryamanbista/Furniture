@@ -160,9 +160,14 @@ const Home = () => {
                     {product.name}
                   </h3>
                   <div className="flex items-center gap-2 mt-1">
-                    <span className="font-semibold text-foreground">
-                      ${product.price}
+                    <span className="text-primary font-bold">
+                      NPR {product.price.toLocaleString()}
                     </span>
+                    {product.originalPrice && (
+                      <span className="text-sm text-gray-500 line-through">
+                        NPR {product.originalPrice.toLocaleString()}
+                      </span>
+                    )}
                     <div className="flex items-center gap-1 text-sm text-yellow-500 ml-auto">
                       <Star className="w-4 h-4 fill-current" />
                       <span className="text-muted-foreground">

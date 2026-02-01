@@ -1,7 +1,17 @@
 import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { motion } from "framer-motion";
-import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
+import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  CreditCard,
+  Truck,
+  MapPin,
+  Smartphone,
+  Package,
+  CheckCircle,
+  ChevronRight,
+  ShieldCheck,
+  Wallet,
+} from "lucide-react";
 import { useApp } from "../context/AppContext";
 import { useAuth } from "../context/AuthContext";
 
@@ -18,9 +28,12 @@ const Checkout = () => {
     state: "",
     zipCode: "",
     phone: "",
-    saveAddress: true,
+    email: "",
   });
+
+  const [paymentMethod, setPaymentMethod] = useState("esewa"); // esewa, khalti, cod
   const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -28,120 +41,94 @@ const Checkout = () => {
       return;
     }
     if (!checkoutProduct) {
-      navigate("/");
+      navigate("/shop");
     }
   }, [isAuthenticated, checkoutProduct, navigate]);
 
   if (!checkoutProduct) return null;
 
   const subtotal = checkoutProduct.price * (checkoutProduct.quantity || 1);
-  const shippingCost = 50.0;
-  const tax = subtotal * 0.08;
+  const shippingCost = 500.0; // Updated shipping cost for local context
+  const tax = subtotal * 0.13; // 13% VAT
   const total = subtotal + shippingCost + tax;
 
   const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value } = e.target;
     setShipping((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: value,
     }));
   };
 
-  const handlePaymentSuccess = (details) => {
-    addOrder(checkoutProduct, shipping, details);
-    setPaymentSuccess(true);
-    setTimeout(() => navigate("/orders"), 3000);
+  const handlePlaceOrder = (e) => {
+    e.preventDefault();
+    setProcessing(true);
+
+    // Simulate API call
+    setTimeout(() => {
+      const details = {
+        paymentMethod,
+        transactionId: `${paymentMethod.toUpperCase()}-${Date.now()}`,
+        status: "COMPLETED",
+        paidAt: new Date().toISOString(),
+      };
+
+      addOrder(checkoutProduct, shipping, details);
+      setProcessing(false);
+      setPaymentSuccess(true);
+      setTimeout(() => navigate("/orders"), 3000);
+    }, 2000);
   };
 
-  const states = [
-    "AL",
-    "AK",
-    "AZ",
-    "AR",
-    "CA",
-    "CO",
-    "CT",
-    "DE",
-    "FL",
-    "GA",
-    "HI",
-    "ID",
-    "IL",
-    "IN",
-    "IA",
-    "KS",
-    "KY",
-    "LA",
-    "ME",
-    "MD",
-    "MA",
-    "MI",
-    "MN",
-    "MS",
-    "MO",
-    "MT",
-    "NE",
-    "NV",
-    "NH",
-    "NJ",
-    "NM",
-    "NY",
-    "NC",
-    "ND",
-    "OH",
-    "OK",
-    "OR",
-    "PA",
-    "RI",
-    "SC",
-    "SD",
-    "TN",
-    "TX",
-    "UT",
-    "VT",
-    "VA",
-    "WA",
-    "WV",
-    "WI",
-    "WY",
+  const paymentMethods = [
+    {
+      id: "esewa",
+      name: "eSewa",
+      color: "bg-[#60bb46]",
+      textColor: "text-white",
+      description: "Pay with your eSewa mobile wallet",
+    },
+    {
+      id: "khalti",
+      name: "Khalti",
+      color: "bg-[#5c2d91]",
+      textColor: "text-white",
+      description: "Pay with Khalti digital wallet",
+    },
+    {
+      id: "cod",
+      name: "Cash on Delivery",
+      color: "bg-zinc-800",
+      textColor: "text-white",
+      description: "Pay carefully upon delivery",
+    },
   ];
 
   if (paymentSuccess) {
     return (
-      <div className="min-h-screen hero-gradient flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
+          initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="glass-card p-12 text-center max-w-md"
+          className="bg-card w-full max-w-md p-8 rounded-3xl border border-border shadow-2xl text-center"
         >
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ type: "spring", delay: 0.2 }}
-            className="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center mx-auto mb-6 shadow-lg shadow-emerald-500/30"
+            className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6"
           >
-            <svg
-              className="w-10 h-10 text-white"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
+            <CheckCircle className="w-12 h-12 text-primary" />
           </motion.div>
-          <h1 className="text-2xl font-bold text-white mb-2">
-            Payment Successful!
+          <h1 className="text-3xl font-bold font-display text-foreground mb-3">
+            Order Confirmed!
           </h1>
-          <p className="text-gray-500 mb-6">
-            Your order has been placed successfully.
+          <p className="text-muted-foreground mb-8 text-lg">
+            Thank you for your purchase. Your order has been placed
+            successfully.
           </p>
-          <div className="flex items-center justify-center gap-2 text-blue-400">
-            <div className="w-5 h-5 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />
+          <div className="flex items-center justify-center gap-3 text-primary font-medium bg-secondary/50 py-3 px-6 rounded-full mx-auto w-fit">
+            <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
             Redirecting to orders...
           </div>
         </motion.div>
@@ -150,353 +137,266 @@ const Checkout = () => {
   }
 
   return (
-    <div className="min-h-screen hero-gradient">
-      <main className="max-w-5xl mx-auto px-4 py-12">
+    <div className="min-h-screen bg-background pt-24 pb-16">
+      <div className="max-w-7xl mx-auto px-4 md:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
+          className="mb-10"
         >
-          <h1 className="text-3xl font-bold text-foreground mb-2">Checkout</h1>
-          <p className="text-muted-foreground mb-10">
-            Complete your purchase securely.
-          </p>
+          <h1 className="text-4xl font-bold font-display text-foreground mb-4">
+            Checkout
+          </h1>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <span>Cart</span>
+            <ChevronRight className="w-4 h-4" />
+            <span className="text-primary font-medium">Checkout</span>
+            <ChevronRight className="w-4 h-4" />
+            <span>Confirmation</span>
+          </div>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Item Details */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="glass-card p-6 border-border"
-            >
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
-                  <svg
-                    className="w-4 h-4 text-blue-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
-                    />
-                  </svg>
+        <form
+          onSubmit={handlePlaceOrder}
+          className="grid grid-cols-1 lg:grid-cols-12 gap-10"
+        >
+          {/* Left Column: Form Details */}
+          <div className="lg:col-span-7 space-y-8">
+            {/* Shipping Details */}
+            <section className="bg-card border border-border rounded-3xl p-8 shadow-sm">
+              <div className="flex items-center gap-3 mb-8 pb-4 border-b border-border">
+                <div className="p-3 bg-primary/10 rounded-xl text-primary">
+                  <MapPin className="w-6 h-6" />
                 </div>
-                <h2 className="font-semibold text-foreground">Item Details</h2>
-              </div>
-              <div className="flex gap-4">
-                <img
-                  src={checkoutProduct.image}
-                  alt={checkoutProduct.name}
-                  className="w-24 h-20 object-cover rounded-xl"
-                />
                 <div>
-                  <h3 className="font-medium text-foreground">
-                    {checkoutProduct.name} - {checkoutProduct.selectedColor}
-                  </h3>
-                  <p className="text-sm text-muted-foreground font-mono">
-                    SKU: {checkoutProduct.sku}
-                  </p>
-                  <p className="text-lg font-bold price-tag mt-1 text-foreground">
-                    ${checkoutProduct.price.toFixed(2)}{" "}
-                    <span className="text-muted-foreground text-sm font-normal">
-                      × {checkoutProduct.quantity || 1}
-                    </span>
+                  <h2 className="text-xl font-bold text-foreground">
+                    Shipping Address
+                  </h2>
+                  <p className="text-sm text-muted-foreground">
+                    Where should we deliver your order?
                   </p>
                 </div>
               </div>
-            </motion.div>
 
-            {/* Shipping Information */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="glass-card p-6 border-border"
-            >
-              <div className="flex items-center gap-2 mb-6">
-                <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center">
-                  <svg
-                    className="w-4 h-4 text-purple-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                    />
-                  </svg>
-                </div>
-                <h2 className="font-semibold text-foreground">
-                  Shipping Information
-                </h2>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-muted-foreground mb-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">
                     First Name
                   </label>
                   <input
                     type="text"
                     name="firstName"
+                    required
                     value={shipping.firstName}
                     onChange={handleInputChange}
-                    placeholder="Jane"
-                    className="input-modern bg-secondary border-border text-foreground"
-                    required
+                    className="w-full px-4 py-3 rounded-xl border border-input bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+                    placeholder="Enter first name"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-muted-foreground mb-2">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">
                     Last Name
                   </label>
                   <input
                     type="text"
                     name="lastName"
+                    required
                     value={shipping.lastName}
                     onChange={handleInputChange}
-                    placeholder="Doe"
-                    className="input-modern bg-secondary border-border text-foreground"
-                    required
+                    className="w-full px-4 py-3 rounded-xl border border-input bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+                    placeholder="Enter last name"
                   />
                 </div>
-                <div className="sm:col-span-2">
-                  <label className="block text-sm font-medium text-muted-foreground mb-2">
+                <div className="md:col-span-2 space-y-2">
+                  <label className="text-sm font-medium text-foreground">
                     Address
                   </label>
                   <input
                     type="text"
                     name="address"
+                    required
                     value={shipping.address}
                     onChange={handleInputChange}
-                    placeholder="123 Furniture Lane"
-                    className="input-modern bg-secondary border-border text-foreground"
-                    required
+                    className="w-full px-4 py-3 rounded-xl border border-input bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+                    placeholder="Street address, apartment, suite, etc."
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-muted-foreground mb-2">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">
                     City
                   </label>
                   <input
                     type="text"
                     name="city"
+                    required
                     value={shipping.city}
                     onChange={handleInputChange}
-                    placeholder="New York"
-                    className="input-modern bg-secondary border-border text-foreground"
-                    required
+                    className="w-full px-4 py-3 rounded-xl border border-input bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+                    placeholder="Kathmandu"
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-muted-foreground mb-2">
-                      State
-                    </label>
-                    <select
-                      name="state"
-                      value={shipping.state}
-                      onChange={handleInputChange}
-                      className="input-modern bg-secondary border-border text-foreground"
-                      required
-                    >
-                      <option value="">Select</option>
-                      {states.map((s) => (
-                        <option key={s} value={s}>
-                          {s}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-muted-foreground mb-2">
-                      ZIP
-                    </label>
-                    <input
-                      type="text"
-                      name="zipCode"
-                      value={shipping.zipCode}
-                      onChange={handleInputChange}
-                      placeholder="10001"
-                      className="input-modern bg-secondary border-border text-foreground"
-                      required
-                    />
-                  </div>
-                </div>
-                <div className="sm:col-span-2">
-                  <label className="block text-sm font-medium text-muted-foreground mb-2">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">
                     Phone Number
                   </label>
                   <input
                     type="tel"
                     name="phone"
+                    required
                     value={shipping.phone}
                     onChange={handleInputChange}
-                    placeholder="(555) 555-0123"
-                    className="input-modern bg-secondary border-border text-foreground"
-                    required
+                    className="w-full px-4 py-3 rounded-xl border border-input bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+                    placeholder="98XXXXXXXX"
                   />
                 </div>
               </div>
+            </section>
 
-              <label className="flex items-center gap-3 mt-6 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  name="saveAddress"
-                  checked={shipping.saveAddress}
-                  onChange={handleInputChange}
-                  className="w-5 h-5 rounded bg-secondary border-border text-blue-500"
-                />
-                <span className="text-sm text-muted-foreground group-hover:text-foreground">
-                  Save for future purchases
-                </span>
-              </label>
-            </motion.div>
-
-            {/* Payment */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="glass-card p-6 border-border"
-            >
-              <div className="flex items-center gap-2 mb-6">
-                <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center">
-                  <svg
-                    className="w-4 h-4 text-emerald-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
-                    />
-                  </svg>
+            {/* Payment Method */}
+            <section className="bg-card border border-border rounded-3xl p-8 shadow-sm">
+              <div className="flex items-center gap-3 mb-8 pb-4 border-b border-border">
+                <div className="p-3 bg-primary/10 rounded-xl text-primary">
+                  <Wallet className="w-6 h-6" />
                 </div>
-                <h2 className="font-semibold text-foreground">Payment</h2>
-              </div>
-
-              <div className="mb-6 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-start gap-3">
-                <svg
-                  className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                  />
-                </svg>
                 <div>
-                  <p className="font-medium text-amber-400 text-sm">
-                    Test Mode Enabled
-                  </p>
-                  <p className="text-amber-500/80 text-xs">
-                    Sandbox environment - no real charges
+                  <h2 className="text-xl font-bold text-foreground">
+                    Payment Method
+                  </h2>
+                  <p className="text-sm text-muted-foreground">
+                    Select your preferred payment option
                   </p>
                 </div>
               </div>
 
-              <p className="text-center text-muted-foreground text-sm mb-4">
-                Express Checkout
-              </p>
-              <PayPalScriptProvider
-                options={{ clientId: "test", currency: "USD" }}
-              >
-                <PayPalButtons
-                  style={{ layout: "horizontal", color: "gold", shape: "pill" }}
-                  createOrder={(data, actions) =>
-                    actions.order.create({
-                      purchase_units: [{ amount: { value: total.toFixed(2) } }],
-                    })
-                  }
-                  onApprove={(data, actions) =>
-                    actions.order.capture().then(handlePaymentSuccess)
-                  }
-                />
-              </PayPalScriptProvider>
-            </motion.div>
+              <div className="space-y-4">
+                {paymentMethods.map((method) => (
+                  <label
+                    key={method.id}
+                    className={`relative flex items-center gap-4 p-5 rounded-2xl border-2 cursor-pointer transition-all ${
+                      paymentMethod === method.id
+                        ? "border-primary bg-primary/5 shadow-md"
+                        : "border-border hover:border-muted-foreground/30 bg-background"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value={method.id}
+                      checked={paymentMethod === method.id}
+                      onChange={(e) => setPaymentMethod(e.target.value)}
+                      className="w-5 h-5 text-primary border-border focus:ring-primary"
+                    />
+                    <div
+                      className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${method.color}`}
+                    >
+                      <span className={`font-bold text-xs ${method.textColor}`}>
+                        {method.name.substring(0, 2)}
+                      </span>
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-bold text-foreground">{method.name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {method.description}
+                      </p>
+                    </div>
+                    {paymentMethod === method.id && (
+                      <CheckCircle className="w-6 h-6 text-primary" />
+                    )}
+                  </label>
+                ))}
+              </div>
+            </section>
           </div>
 
-          {/* Order Summary */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            <div className="glass-card p-6 sticky top-24 border-border">
-              <h2 className="font-semibold text-foreground mb-6">
+          {/* Right Column: Order Summary */}
+          <div className="lg:col-span-5">
+            <div className="sticky top-28 bg-card border border-border rounded-3xl p-8 shadow-lg">
+              <h2 className="text-xl font-bold font-display text-foreground mb-6">
                 Order Summary
               </h2>
-              <div className="space-y-3 text-sm">
+
+              <div className="flex gap-4 mb-6 pb-6 border-b border-border">
+                <div className="w-20 h-20 rounded-xl bg-secondary overflow-hidden border border-border shrink-0">
+                  <img
+                    src={checkoutProduct.image}
+                    alt={checkoutProduct.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div>
+                  <h3 className="font-bold text-foreground line-clamp-1">
+                    {checkoutProduct.name}
+                  </h3>
+                  <p className="text-sm text-muted-foreground mb-1">
+                    {checkoutProduct.category}
+                  </p>
+                  <p className="text-primary font-bold">
+                    NPR {checkoutProduct.price.toLocaleString()}
+                    <span className="text-sm text-muted-foreground font-normal ml-1">
+                      x {checkoutProduct.quantity || 1}
+                    </span>
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-3 mb-6">
                 <div className="flex justify-between text-muted-foreground">
                   <span>Subtotal</span>
-                  <span className="text-foreground">
-                    ${subtotal.toFixed(2)}
+                  <span className="text-foreground font-medium">
+                    NPR {subtotal.toLocaleString()}
                   </span>
                 </div>
                 <div className="flex justify-between text-muted-foreground">
-                  <span>Shipping</span>
-                  <span className="text-foreground">
-                    ${shippingCost.toFixed(2)}
+                  <span>Shipping (Standard)</span>
+                  <span className="text-foreground font-medium">
+                    NPR {shippingCost.toLocaleString()}
                   </span>
                 </div>
                 <div className="flex justify-between text-muted-foreground">
-                  <span>Tax (8%)</span>
-                  <span className="text-foreground">${tax.toFixed(2)}</span>
-                </div>
-              </div>
-              <div className="border-t border-border mt-4 pt-4">
-                <div className="flex justify-between items-center">
-                  <span className="font-medium text-foreground">Total</span>
-                  <span className="text-3xl font-bold price-tag text-foreground">
-                    ${total.toFixed(2)}
+                  <span>Tax (13% VAT)</span>
+                  <span className="text-foreground font-medium">
+                    NPR {tax.toLocaleString()}
                   </span>
                 </div>
               </div>
-              <div className="mt-6 p-4 rounded-xl bg-secondary border border-border">
-                <div className="flex items-center gap-2 text-sm">
-                  <svg
-                    className="w-5 h-5 text-blue-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                  <span className="text-muted-foreground">
-                    Need help?{" "}
-                    <span className="text-foreground font-medium">
-                      1-800-FURNIHOME
-                    </span>
+
+              <div className="flex justify-between items-end pt-6 border-t border-border mb-8">
+                <div>
+                  <span className="block text-sm text-muted-foreground">
+                    Total Amount
+                  </span>
+                  <span className="text-3xl font-bold text-primary font-display">
+                    NPR {total.toLocaleString()}
                   </span>
                 </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={processing}
+                className="w-full py-4 bg-primary text-primary-foreground rounded-xl font-bold text-lg shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5 transition-all disabled:opacity-70 disabled:hover:translate-y-0 flex items-center justify-center gap-2"
+              >
+                {processing ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    Place Order
+                    <ChevronRight className="w-5 h-5" />
+                  </>
+                )}
+              </button>
+
+              <div className="mt-6 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+                <ShieldCheck className="w-4 h-4 text-green-500" />
+                <span>Secure SSL Encryption</span>
               </div>
             </div>
-          </motion.div>
-        </div>
-      </main>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };

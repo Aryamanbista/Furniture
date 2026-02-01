@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useApp } from "../context/AppContext";
 import { useAuth } from "../context/AuthContext";
-import { Navigate } from "react-router-dom";
+import { Navigate, Link } from "react-router-dom";
 import {
   PlusIcon,
   PencilSquareIcon,
@@ -14,6 +14,7 @@ import {
   DocumentTextIcon,
   CheckCircleIcon,
   XCircleIcon,
+  ArrowLeftIcon,
 } from "@heroicons/react/24/outline";
 
 const AdminProducts = () => {
@@ -115,6 +116,13 @@ const AdminProducts = () => {
       {/* Header Section */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
+          <Link
+            to="/admin"
+            className="flex items-center gap-2 text-muted-foreground hover:text-primary mb-2 transition-colors w-fit"
+          >
+            <ArrowLeftIcon className="w-4 h-4" />
+            Back to Dashboard
+          </Link>
           <h1 className="text-3xl font-display font-semibold text-foreground">
             Product Management
           </h1>
@@ -217,7 +225,7 @@ const AdminProducts = () => {
                   </td>
                   <td className="py-4 px-6">
                     <span className="text-lg font-bold text-foreground">
-                      ${product.price.toFixed(2)}
+                      NPR {product.price.toLocaleString()}
                     </span>
                   </td>
                   <td className="py-4 px-6">
@@ -356,7 +364,7 @@ const AdminProducts = () => {
                     </label>
                     <div className="relative">
                       <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg font-bold text-muted-foreground">
-                        $
+                        NPR
                       </span>
                       <input
                         type="number"
@@ -368,7 +376,7 @@ const AdminProducts = () => {
                         onChange={(e) =>
                           setFormData({ ...formData, price: e.target.value })
                         }
-                        className="w-full pl-10 pr-4 py-3 rounded-xl border border-input bg-background text-foreground placeholder-muted-foreground focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all font-bold text-lg"
+                        className="w-full pl-14 pr-4 py-3 rounded-xl border border-input bg-background text-foreground placeholder-muted-foreground focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all font-bold text-lg"
                       />
                     </div>
                   </div>

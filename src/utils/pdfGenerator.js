@@ -1,4 +1,4 @@
-import jsPDF from "jspdf";
+import { jsPDF } from "jspdf";
 
 export const generateReceipt = (order) => {
   const doc = new jsPDF();
@@ -89,7 +89,7 @@ export const generateReceipt = (order) => {
     doc.setFontSize(10);
     doc.setTextColor(0, 0, 0);
     doc.text(String(item.quantity), 125, yPos);
-    doc.text(`$${item.price.toFixed(2)}`, pageWidth - 25, yPos, {
+    doc.text(`NPR ${item.price.toLocaleString()}`, pageWidth - 25, yPos, {
       align: "right",
     });
 
@@ -98,41 +98,46 @@ export const generateReceipt = (order) => {
 
   // Divider
   yPos += 5;
+  doc.setDrawColor(200, 200, 200);
   doc.line(20, yPos, pageWidth - 20, yPos);
   yPos += 15;
 
-  // Totals
+  // Add totals
+  yPos += 15; // Add spacing after the table/divider
+
   const subtotal = order.items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
+    (acc, item) => acc + item.price * item.quantity,
     0,
   );
-  const shipping = 50.0;
-  const tax = subtotal * 0.08;
+  const shipping = 500;
+  const tax = subtotal * 0.13;
   const total = subtotal + shipping + tax;
 
   doc.setFontSize(10);
-  doc.setTextColor(100, 100, 100);
-  doc.text("Subtotal:", 120, yPos);
-  doc.setTextColor(0, 0, 0);
-  doc.text(`$${subtotal.toFixed(2)}`, pageWidth - 25, yPos, { align: "right" });
+  doc.text(`Subtotal:`, 140, yPos);
+  doc.text(`NPR ${subtotal.toLocaleString()}`, pageWidth - 25, yPos, {
+    align: "right",
+  });
 
-  yPos += 8;
-  doc.setTextColor(100, 100, 100);
-  doc.text("Shipping:", 120, yPos);
-  doc.setTextColor(0, 0, 0);
-  doc.text(`$${shipping.toFixed(2)}`, pageWidth - 25, yPos, { align: "right" });
+  yPos += 7;
+  doc.text(`Shipping:`, 140, yPos);
+  doc.text(`NPR ${shipping.toLocaleString()}`, pageWidth - 25, yPos, {
+    align: "right",
+  });
 
-  yPos += 8;
-  doc.setTextColor(100, 100, 100);
-  doc.text("Tax (8%):", 120, yPos);
-  doc.setTextColor(0, 0, 0);
-  doc.text(`$${tax.toFixed(2)}`, pageWidth - 25, yPos, { align: "right" });
+  yPos += 7;
+  doc.text(`Tax (13%):`, 140, yPos);
+  doc.text(`NPR ${tax.toLocaleString()}`, pageWidth - 25, yPos, {
+    align: "right",
+  });
 
-  yPos += 12;
-  doc.setFontSize(14);
-  doc.setTextColor(37, 99, 235);
-  doc.text("Total:", 120, yPos);
-  doc.text(`$${total.toFixed(2)}`, pageWidth - 25, yPos, { align: "right" });
+  yPos += 10;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(12);
+  doc.text(`Total:`, 140, yPos);
+  doc.text(`NPR ${total.toLocaleString()}`, pageWidth - 25, yPos, {
+    align: "right",
+  });
 
   // Footer
   yPos = doc.internal.pageSize.getHeight() - 30;
@@ -147,7 +152,7 @@ export const generateReceipt = (order) => {
     yPos + 6,
     { align: "center" },
   );
-  doc.text("© 2024 FurniHome. All rights reserved.", pageWidth / 2, yPos + 12, {
+  doc.text("© 2026 FurniHome. All rights reserved.", pageWidth / 2, yPos + 12, {
     align: "center",
   });
 

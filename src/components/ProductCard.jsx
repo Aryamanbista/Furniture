@@ -34,11 +34,13 @@ const ProductCard = ({ product }) => {
         <h3 className="text-base font-medium text-foreground group-hover:underline decoration-1 underline-offset-4">
           {name}
         </h3>
-        <div className="flex items-center gap-2 text-sm">
-          <span className="font-medium">${price.toFixed(2)}</span>
+        <div className="flex items-center gap-2 mt-2">
+          <span className="font-medium text-primary">
+            NPR {price.toLocaleString()}
+          </span>
           {originalPrice && (
-            <span className="text-muted-foreground line-through text-xs">
-              ${originalPrice.toFixed(2)}
+            <span className="text-sm text-gray-400 line-through">
+              NPR {originalPrice.toLocaleString()}
             </span>
           )}
         </div>

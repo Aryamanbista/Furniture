@@ -45,7 +45,7 @@ const AdminDashboard = () => {
         <div className="bg-background border border-border p-3 rounded-xl shadow-lg">
           <p className="text-sm font-semibold mb-1">{label}</p>
           <p className="text-sm text-primary">
-            {payload[0].name}: {payload[0].name === "Revenue" ? "$" : ""}
+            {payload[0].name}: {payload[0].name === "Revenue" ? "NPR " : ""}
             {payload[0].value}
           </p>
         </div>
@@ -88,7 +88,7 @@ const AdminDashboard = () => {
                 Total Sales
               </p>
               <h3 className="text-2xl font-bold text-foreground">
-                $
+                NPR{" "}
                 {totalSales.toLocaleString(undefined, {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
@@ -123,23 +123,23 @@ const AdminDashboard = () => {
               <ChartBarIcon className="w-6 h-6 text-primary" />
               Sales Trend
             </h2>
-            <div className="flex bg-secondary rounded-lg p-1">
+            <div className="flex bg-secondary/50 p-1 rounded-xl border border-border">
               <button
                 onClick={() => setReportType("monthly")}
-                className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${
+                className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                   reportType === "monthly"
-                    ? "bg-white dark:bg-zinc-800 shadow-sm text-foreground"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground hover:bg-background/50"
                 }`}
               >
                 Monthly
               </button>
               <button
                 onClick={() => setReportType("yearly")}
-                className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${
+                className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                   reportType === "yearly"
-                    ? "bg-white dark:bg-zinc-800 shadow-sm text-foreground"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground hover:bg-background/50"
                 }`}
               >
                 Yearly
@@ -177,10 +177,11 @@ const AdminDashboard = () => {
                 />
                 <YAxis
                   axisLine={false}
+                  stroke="hsl(var(--muted-foreground))"
+                  fontSize={12}
                   tickLine={false}
-                  tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
-                  dx={-10}
-                  tickFormatter={(value) => `$${value}`}
+                  tickFormatter={(value) => `NPR ${value}`}
+                  width={80}
                 />
                 <Tooltip content={<CustomTooltip />} />
                 <Area

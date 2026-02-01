@@ -45,7 +45,7 @@ const Receipt = () => {
           <div className="flex justify-between mb-2">
             <span className="text-muted-foreground">Amount Paid</span>
             <span className="font-medium text-foreground">
-              ${order.total.toFixed(2)}
+              NPR {order.total.toLocaleString()}
             </span>
           </div>
           <div className="flex justify-between">

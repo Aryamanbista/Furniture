@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
@@ -24,8 +24,13 @@ const OrderHistory = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [activeTab, setActiveTab] = useState("orders");
 
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate("/login");
+    }
+  }, [isAuthenticated, navigate]);
+
   if (!isAuthenticated) {
-    navigate("/login");
     return null;
   }
 
@@ -114,8 +119,8 @@ const OrderHistory = () => {
   ];
 
   return (
-    <div className="min-h-screen hero-gradient">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="min-h-screen bg-background pt-24 pb-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar */}
           <motion.aside
@@ -123,16 +128,16 @@ const OrderHistory = () => {
             animate={{ opacity: 1, x: 0 }}
             className="lg:w-72 flex-shrink-0"
           >
-            <div className="glass-card p-6">
-              <div className="flex items-center gap-4 mb-8 pb-6 border-b border-white/10">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg shadow-purple-500/25">
-                  <span className="text-white font-bold text-xl">
+            <div className="bg-card border border-border shadow-sm rounded-2xl p-6">
+              <div className="flex items-center gap-4 mb-8 pb-6 border-b border-border">
+                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center">
+                  <span className="text-primary font-bold text-xl">
                     {user?.name?.charAt(0)?.toUpperCase() || "U"}
                   </span>
                 </div>
                 <div>
-                  <p className="font-semibold text-white">{user?.name}</p>
-                  <p className="text-sm text-gray-500">
+                  <p className="font-semibold text-foreground">{user?.name}</p>
+                  <p className="text-sm text-muted-foreground">
                     Member since {user?.memberSince}
                   </p>
                 </div>
@@ -146,8 +151,8 @@ const OrderHistory = () => {
                     onClick={() => setActiveTab(link.id)}
                     className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm transition-all ${
                       activeTab === link.id
-                        ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-500/25"
-                        : "text-gray-400 hover:text-white hover:bg-white/5"
+                        ? "bg-primary text-primary-foreground shadow-md"
+                        : "text-muted-foreground hover:bg-secondary hover:text-foreground"
                     }`}
                   >
                     <svg
@@ -177,10 +182,10 @@ const OrderHistory = () => {
               animate={{ opacity: 1, y: 0 }}
               className="mb-8"
             >
-              <h1 className="text-3xl font-bold text-white font-display">
+              <h1 className="text-3xl font-bold text-foreground font-display">
                 Order History
               </h1>
-              <p className="text-gray-500">
+              <p className="text-muted-foreground">
                 Track orders, download receipts, and review purchases.
               </p>
             </motion.div>
@@ -194,7 +199,7 @@ const OrderHistory = () => {
             >
               <div className="relative flex-1">
                 <svg
-                  className="w-5 h-5 text-gray-500 absolute left-4 top-1/2 -translate-y-1/2"
+                  className="w-5 h-5 text-muted-foreground absolute left-4 top-1/2 -translate-y-1/2"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -211,23 +216,17 @@ const OrderHistory = () => {
                   placeholder="Search by Order ID or Item"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="input-modern pl-12"
+                  className="w-full bg-card border border-border rounded-xl px-4 py-3 pl-12 text-foreground placeholder-muted-foreground outline-none focus:ring-2 focus:ring-ring focus:border-border transition-all"
                 />
               </div>
               <select
                 value={dateFilter}
                 onChange={(e) => setDateFilter(e.target.value)}
-                className="input-modern w-auto"
+                className="bg-card border border-border rounded-xl px-4 py-3 text-foreground outline-none focus:ring-2 focus:ring-ring focus:border-border transition-all w-auto"
               >
-                <option value="30" className="bg-gray-900">
-                  Last 30 days
-                </option>
-                <option value="90" className="bg-gray-900">
-                  Last 3 months
-                </option>
-                <option value="365" className="bg-gray-900">
-                  Last year
-                </option>
+                <option value="30">Last 30 days</option>
+                <option value="90">Last 3 months</option>
+                <option value="365">Last year</option>
               </select>
             </motion.div>
 
@@ -236,11 +235,11 @@ const OrderHistory = () => {
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="glass-card p-16 text-center"
+                className="bg-card border border-border rounded-2xl p-16 text-center shadow-sm"
               >
-                <div className="w-20 h-20 rounded-2xl bg-gray-800 flex items-center justify-center mx-auto mb-6">
+                <div className="w-20 h-20 rounded-2xl bg-secondary flex items-center justify-center mx-auto mb-6">
                   <svg
-                    className="w-10 h-10 text-gray-600"
+                    className="w-10 h-10 text-muted-foreground"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -253,15 +252,15 @@ const OrderHistory = () => {
                     />
                   </svg>
                 </div>
-                <h3 className="text-xl font-semibold text-white mb-2">
+                <h3 className="text-xl font-semibold text-foreground mb-2">
                   No orders found
                 </h3>
-                <p className="text-gray-500 mb-6">
+                <p className="text-muted-foreground mb-6">
                   You haven't placed any orders yet.
                 </p>
                 <Link
                   to="/"
-                  className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-xl font-medium shadow-lg shadow-blue-500/25"
+                  className="inline-flex items-center px-6 py-3 bg-primary text-primary-foreground rounded-xl font-medium shadow-md hover:bg-primary/90 transition-colors"
                 >
                   Start Shopping
                 </Link>
@@ -275,31 +274,31 @@ const OrderHistory = () => {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
-                      className="glass-card overflow-hidden"
+                      className="bg-card border border-border rounded-2xl shadow-sm overflow-hidden"
                     >
                       {/* Order Header */}
-                      <div className="px-6 py-4 border-b border-white/10 flex flex-wrap items-center gap-6 text-sm">
+                      <div className="px-6 py-4 border-b border-border bg-secondary/30 flex flex-wrap items-center gap-6 text-sm">
                         <div>
-                          <p className="text-gray-600 text-xs uppercase">
+                          <p className="text-muted-foreground text-xs uppercase font-medium">
                             Order Placed
                           </p>
-                          <p className="font-medium text-white">
+                          <p className="font-medium text-foreground">
                             {formatDate(order.date)}
                           </p>
                         </div>
                         <div>
-                          <p className="text-gray-600 text-xs uppercase">
+                          <p className="text-muted-foreground text-xs uppercase font-medium">
                             Total
                           </p>
-                          <p className="font-bold price-tag">
-                            ${order.total.toFixed(2)}
-                          </p>
+                          <span className="text-primary font-bold text-lg">
+                            NPR {order.total.toLocaleString()}
+                          </span>
                         </div>
                         <div>
-                          <p className="text-gray-600 text-xs uppercase">
+                          <p className="text-muted-foreground text-xs uppercase font-medium">
                             Order #
                           </p>
-                          <p className="font-medium text-blue-400 font-mono">
+                          <p className="font-medium text-foreground font-mono">
                             {order.id}
                           </p>
                         </div>
@@ -321,18 +320,18 @@ const OrderHistory = () => {
                             <img
                               src={item.image}
                               alt={item.name}
-                              className="w-20 h-16 object-cover rounded-xl"
+                              className="w-20 h-20 object-cover rounded-xl border border-border"
                             />
                             <div className="flex-1">
-                              <h3 className="font-medium text-white">
+                              <h3 className="font-medium text-foreground text-lg">
                                 {item.name}
                               </h3>
-                              <p className="text-sm text-gray-500">
+                              <p className="text-sm text-muted-foreground">
                                 {item.color && `Color: ${item.color}`}
                               </p>
-                              <div className="flex gap-2 mt-2">
+                              <div className="flex gap-2 mt-3">
                                 {item.reviewed ? (
-                                  <span className="inline-flex items-center gap-1 text-xs text-emerald-400">
+                                  <span className="inline-flex items-center gap-1 text-xs text-emerald-600 bg-emerald-100 px-2 py-1 rounded-lg">
                                     <svg
                                       className="w-3 h-3"
                                       fill="none"
@@ -353,7 +352,7 @@ const OrderHistory = () => {
                                     <motion.button
                                       whileHover={{ scale: 1.02 }}
                                       onClick={() => handleWriteReview(item)}
-                                      className="px-3 py-1 bg-blue-500/20 text-blue-400 text-xs rounded-lg hover:bg-blue-500/30 transition-colors"
+                                      className="px-3 py-1.5 bg-primary/10 text-primary text-xs font-medium rounded-lg hover:bg-primary/20 transition-colors"
                                     >
                                       Leave Review
                                     </motion.button>
@@ -361,25 +360,25 @@ const OrderHistory = () => {
                                 )}
                                 <Link
                                   to={`/product/${item.id}`}
-                                  className="px-3 py-1 bg-white/5 text-gray-400 text-xs rounded-lg hover:bg-white/10 transition-colors"
+                                  className="px-3 py-1.5 bg-secondary text-foreground text-xs font-medium rounded-lg hover:bg-secondary/80 transition-colors"
                                 >
                                   Buy Again
                                 </Link>
                               </div>
                             </div>
-                            <p className="font-semibold text-white">
-                              ${item.price.toFixed(2)}
+                            <p className="font-semibold text-foreground">
+                              NPR {item.price.toLocaleString()}
                             </p>
                           </div>
                         ))}
                       </div>
 
                       {/* Order Footer */}
-                      <div className="px-6 py-4 border-t border-white/10 flex items-center justify-between">
+                      <div className="px-6 py-4 border-t border-border bg-secondary/10 flex items-center justify-between">
                         <motion.button
                           whileHover={{ scale: 1.02 }}
                           onClick={() => handleDownloadReceipt(order)}
-                          className="flex items-center gap-2 text-blue-400 text-sm font-medium hover:text-blue-300 transition-colors"
+                          className="flex items-center gap-2 text-primary text-sm font-medium hover:text-primary/80 transition-colors"
                         >
                           <svg
                             className="w-4 h-4"
@@ -396,7 +395,7 @@ const OrderHistory = () => {
                           </svg>
                           Download Receipt
                         </motion.button>
-                        <button className="text-gray-500 text-sm hover:text-white transition-colors">
+                        <button className="text-muted-foreground text-sm hover:text-foreground transition-colors">
                           View Details
                         </button>
                       </div>
@@ -411,7 +410,7 @@ const OrderHistory = () => {
                       whileHover={{ scale: 1.05 }}
                       onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                       disabled={currentPage === 1}
-                      className="p-2 glass-card disabled:opacity-50"
+                      className="p-2 bg-card border border-border rounded-lg text-muted-foreground hover:text-foreground disabled:opacity-50"
                     >
                       <svg
                         className="w-5 h-5"
@@ -433,7 +432,7 @@ const OrderHistory = () => {
                           key={page}
                           whileHover={{ scale: 1.05 }}
                           onClick={() => setCurrentPage(page)}
-                          className={`w-10 h-10 rounded-xl font-medium transition-all ${currentPage === page ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-500/25" : "glass-card text-gray-400 hover:text-white"}`}
+                          className={`w-10 h-10 rounded-xl font-medium transition-all ${currentPage === page ? "bg-primary text-primary-foreground shadow-md" : "bg-card border border-border text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
                         >
                           {page}
                         </motion.button>
@@ -445,7 +444,7 @@ const OrderHistory = () => {
                         setCurrentPage((p) => Math.min(totalPages, p + 1))
                       }
                       disabled={currentPage === totalPages}
-                      className="p-2 glass-card disabled:opacity-50"
+                      className="p-2 bg-card border border-border rounded-lg text-muted-foreground hover:text-foreground disabled:opacity-50"
                     >
                       <svg
                         className="w-5 h-5"
@@ -477,16 +476,16 @@ const OrderHistory = () => {
       >
         {selectedItem && (
           <div className="space-y-5">
-            <div className="flex items-center gap-3 pb-4 border-b border-white/10">
+            <div className="flex items-center gap-3 pb-4 border-b border-border">
               <img
                 src={selectedItem.image}
                 alt={selectedItem.name}
                 className="w-16 h-12 object-cover rounded-xl"
               />
-              <p className="font-medium text-white">{selectedItem.name}</p>
+              <p className="font-medium text-foreground">{selectedItem.name}</p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-3">
+              <label className="block text-sm font-medium text-muted-foreground mb-3">
                 Your Rating
               </label>
               <StarRating
@@ -497,7 +496,7 @@ const OrderHistory = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-2">
+              <label className="block text-sm font-medium text-muted-foreground mb-2">
                 Title
               </label>
               <input
@@ -507,11 +506,11 @@ const OrderHistory = () => {
                   setNewReview({ ...newReview, title: e.target.value })
                 }
                 placeholder="Summarize your experience"
-                className="input-modern"
+                className="w-full bg-background border border-border rounded-xl px-4 py-3 text-foreground placeholder-muted-foreground outline-none focus:ring-2 focus:ring-ring focus:border-border transition-all"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-2">
+              <label className="block text-sm font-medium text-muted-foreground mb-2">
                 Review
               </label>
               <textarea
@@ -521,14 +520,14 @@ const OrderHistory = () => {
                 }
                 placeholder="Share your thoughts..."
                 rows={4}
-                className="input-modern resize-none"
+                className="w-full bg-background border border-border rounded-xl px-4 py-3 text-foreground placeholder-muted-foreground outline-none focus:ring-2 focus:ring-ring focus:border-border transition-all resize-none"
               />
             </div>
             <motion.button
               whileHover={{ scale: 1.01 }}
               onClick={submitReview}
               disabled={!newReview.title || !newReview.content}
-              className="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-xl font-semibold shadow-lg shadow-blue-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-4 bg-primary text-primary-foreground rounded-xl font-semibold shadow-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 transition-all"
             >
               Submit Review
             </motion.button>

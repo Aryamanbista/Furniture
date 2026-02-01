@@ -109,13 +109,13 @@ const Shop = () => {
                   <h3 className="text-lg font-medium text-foreground">
                     {product.name}
                   </h3>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-muted-foreground">
-                      ${product.price}
+                  <div className="flex items-center gap-2">
+                    <span className="text-primary font-semibold text-lg">
+                      NPR {product.price.toLocaleString()}
                     </span>
                     {product.originalPrice && (
-                      <span className="text-sm text-neutral-400 line-through">
-                        ${product.originalPrice}
+                      <span className="text-sm text-gray-500 line-through">
+                        NPR {product.originalPrice.toLocaleString()}
                       </span>
                     )}
                   </div>
