@@ -28,10 +28,19 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen hero-gradient flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Decorative Blurs */}
-      <div className="absolute w-96 h-96 bg-blue-500 rounded-full blur-[150px] opacity-20 -top-48 -left-48" />
-      <div className="absolute w-96 h-96 bg-purple-500 rounded-full blur-[150px] opacity-20 -bottom-48 -right-48" />
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Background Image */}
+      <div
+        className="absolute inset-0 z-0"
+        style={{
+          backgroundImage:
+            'url("https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=2158&auto=format&fit=crop")',
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        <div className="absolute inset-0 bg-background/80 dark:bg-background/90" />
+      </div>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -40,19 +49,11 @@ const Login = () => {
         className="w-full max-w-md relative z-10"
       >
         {/* Logo */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="text-center mb-8"
-        >
+        <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-3">
-            <motion.div
-              whileHover={{ scale: 1.05, rotate: 5 }}
-              className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/25"
-            >
+            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
               <svg
-                className="w-7 h-7 text-white"
+                className="w-6 h-6 text-primary-foreground"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -64,20 +65,15 @@ const Login = () => {
                   d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
                 />
               </svg>
-            </motion.div>
+            </div>
             <span className="text-2xl font-bold font-display text-foreground">
               FurniHome
             </span>
           </Link>
-        </motion.div>
+        </div>
 
         {/* Form Card */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2 }}
-          className="glass-card p-8 border-border"
-        >
+        <div className="bg-card border border-border rounded-2xl p-8 shadow-sm">
           <h1 className="text-2xl font-bold text-foreground text-center mb-2">
             Welcome back
           </h1>
@@ -89,42 +85,29 @@ const Login = () => {
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20"
+              className="mb-6 p-4 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-sm"
             >
-              <p className="text-red-400 text-sm">{error}</p>
+              {error}
             </motion.div>
           )}
 
           {/* Demo credentials hint */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            className="mb-6 p-4 rounded-xl bg-blue-500/10 border border-blue-500/20"
-          >
-            <p className="text-blue-400 text-sm">
-              <span className="font-medium">Demo:</span> demo@furnihome.com /
-              demo123
-            </p>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4 }}
-            className="mb-6 p-4 rounded-xl bg-purple-500/10 border border-purple-500/20"
-          >
-            <p className="text-purple-400 text-sm">
-              <span className="font-medium">Admin:</span> admin@furnihome.com /
-              admin123
-            </p>
-          </motion.div>
+          <div className="mb-6 space-y-2">
+            <div className="p-3 rounded-lg bg-secondary text-xs text-muted-foreground border border-border">
+              <span className="font-semibold text-foreground">Demo:</span>{" "}
+              demo@furnihome.com / demo123 (User)
+            </div>
+            <div className="p-3 rounded-lg bg-secondary text-xs text-muted-foreground border border-border">
+              <span className="font-semibold text-foreground">Admin:</span>{" "}
+              admin@furnihome.com / admin123 (Admin)
+            </div>
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-muted-foreground mb-2"
+                className="block text-sm font-medium text-foreground mb-2"
               >
                 Email address
               </label>
@@ -134,7 +117,7 @@ const Login = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="input-modern bg-secondary border-border text-foreground placeholder-muted-foreground"
+                className="w-full px-4 py-3 rounded-xl border border-input bg-background text-foreground placeholder-muted-foreground focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
                 placeholder="you@example.com"
               />
             </div>
@@ -142,7 +125,7 @@ const Login = () => {
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-muted-foreground mb-2"
+                className="block text-sm font-medium text-foreground mb-2"
               >
                 Password
               </label>
@@ -152,7 +135,7 @@ const Login = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="input-modern bg-secondary border-border text-foreground placeholder-muted-foreground"
+                className="w-full px-4 py-3 rounded-xl border border-input bg-background text-foreground placeholder-muted-foreground focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
                 placeholder="••••••••"
               />
             </div>
@@ -163,13 +146,13 @@ const Login = () => {
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="w-4 h-4 rounded bg-secondary border-border text-blue-500 focus:ring-blue-500 focus:ring-offset-0"
+                  className="w-4 h-4 rounded border-border text-primary focus:ring-primary"
                 />
                 <span className="text-sm text-muted-foreground group-hover:text-foreground">
                   Remember me
                 </span>
               </label>
-              <a href="#" className="text-sm text-blue-400 hover:text-blue-300">
+              <a href="#" className="text-sm text-primary hover:underline">
                 Forgot password?
               </a>
             </div>
@@ -179,28 +162,10 @@ const Login = () => {
               whileTap={{ scale: 0.99 }}
               type="submit"
               disabled={loading}
-              className="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-xl font-semibold shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+              className="w-full py-3.5 bg-primary text-primary-foreground rounded-xl font-semibold shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
             >
               {loading ? (
-                <svg
-                  className="animate-spin h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  />
-                </svg>
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
                 "Sign in"
               )}
@@ -212,13 +177,13 @@ const Login = () => {
               Don't have an account?{" "}
               <Link
                 to="/register"
-                className="text-blue-400 hover:text-blue-300 font-medium"
+                className="text-primary font-medium hover:underline"
               >
                 Create one
               </Link>
             </p>
           </div>
-        </motion.div>
+        </div>
       </motion.div>
     </div>
   );

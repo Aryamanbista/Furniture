@@ -6,8 +6,18 @@ import {
   ChartBarIcon,
   ArchiveBoxIcon,
   CurrencyDollarIcon,
-  ArrowRightIcon,
 } from "@heroicons/react/24/outline";
+import {
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 
 const AdminDashboard = () => {
   const { user, isAdmin } = useAuth();
@@ -27,6 +37,22 @@ const AdminDashboard = () => {
   if (!isAdmin) return null;
 
   const totalSales = orders.reduce((acc, order) => acc + order.total, 0);
+
+  // Custom Tooltip for Charts
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-background border border-border p-3 rounded-xl shadow-lg">
+          <p className="text-sm font-semibold mb-1">{label}</p>
+          <p className="text-sm text-primary">
+            {payload[0].name}: {payload[0].name === "Revenue" ? "$" : ""}
+            {payload[0].value}
+          </p>
+        </div>
+      );
+    }
+    return null;
+  };
 
   return (
     <div className="pt-24 pb-16 px-4 md:px-8 max-w-7xl mx-auto min-h-screen">
@@ -54,7 +80,7 @@ const AdminDashboard = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
         <div className="bg-secondary/30 p-6 rounded-2xl border border-border">
           <div className="flex items-center gap-4 mb-2">
-            <div className="p-3 bg-blue-100 dark:bg-blue-900/30 text-blue-600 rounded-xl">
+            <div className="p-3 bg-primary/10 text-primary rounded-xl">
               <CurrencyDollarIcon className="w-6 h-6" />
             </div>
             <div>
@@ -73,7 +99,7 @@ const AdminDashboard = () => {
         </div>
         <div className="bg-secondary/30 p-6 rounded-2xl border border-border">
           <div className="flex items-center gap-4 mb-2">
-            <div className="p-3 bg-green-100 dark:bg-green-900/30 text-green-600 rounded-xl">
+            <div className="p-3 bg-primary/10 text-primary rounded-xl">
               <ArchiveBoxIcon className="w-6 h-6" />
             </div>
             <div>
@@ -88,78 +114,127 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      {/* Sales Report */}
-      <div className="bg-background border border-border rounded-3xl p-8 shadow-sm">
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-xl font-bold flex items-center gap-2">
-            <ChartBarIcon className="w-6 h-6 text-primary" />
-            Sales Report
-          </h2>
-          <div className="flex bg-secondary rounded-lg p-1">
-            <button
-              onClick={() => setReportType("monthly")}
-              className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
-                reportType === "monthly"
-                  ? "bg-white dark:bg-zinc-800 shadow-sm text-white"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              Monthly
-            </button>
-            <button
-              onClick={() => setReportType("yearly")}
-              className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
-                reportType === "yearly"
-                  ? "bg-white dark:bg-zinc-800 shadow-sm text-white"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              Yearly
-            </button>
+      {/* Analytics Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+        {/* Sales Chart */}
+        <div className="bg-background border border-border rounded-3xl p-8 shadow-sm">
+          <div className="flex justify-between items-center mb-8">
+            <h2 className="text-xl font-bold flex items-center gap-2">
+              <ChartBarIcon className="w-6 h-6 text-primary" />
+              Sales Trend
+            </h2>
+            <div className="flex bg-secondary rounded-lg p-1">
+              <button
+                onClick={() => setReportType("monthly")}
+                className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${
+                  reportType === "monthly"
+                    ? "bg-white dark:bg-zinc-800 shadow-sm text-foreground"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Monthly
+              </button>
+              <button
+                onClick={() => setReportType("yearly")}
+                className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${
+                  reportType === "yearly"
+                    ? "bg-white dark:bg-zinc-800 shadow-sm text-foreground"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Yearly
+              </button>
+            </div>
+          </div>
+          <div className="h-64 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={reportData}>
+                <defs>
+                  <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
+                    <stop
+                      offset="5%"
+                      stopColor="hsl(var(--primary))"
+                      stopOpacity={0.1}
+                    />
+                    <stop
+                      offset="95%"
+                      stopColor="hsl(var(--primary))"
+                      stopOpacity={0}
+                    />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  vertical={false}
+                  stroke="hsl(var(--border))"
+                />
+                <XAxis
+                  dataKey="period"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
+                  dy={10}
+                />
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
+                  dx={-10}
+                  tickFormatter={(value) => `$${value}`}
+                />
+                <Tooltip content={<CustomTooltip />} />
+                <Area
+                  type="monotone"
+                  dataKey="sales"
+                  name="Revenue"
+                  stroke="hsl(var(--primary))"
+                  strokeWidth={2}
+                  fillOpacity={1}
+                  fill="url(#colorSales)"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead>
-              <tr className="border-b border-border">
-                <th className="py-4 px-6 font-medium text-muted-foreground">
-                  Period
-                </th>
-                <th className="py-4 px-6 font-medium text-muted-foreground text-right">
-                  Orders
-                </th>
-                <th className="py-4 px-6 font-medium text-muted-foreground text-right">
-                  Revenue
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {reportData.length > 0 ? (
-                reportData.map((row) => (
-                  <tr
-                    key={row.period}
-                    className="border-b border-border/50 hover:bg-secondary/20 transition-colors"
-                  >
-                    <td className="py-4 px-6 font-medium">{row.period}</td>
-                    <td className="py-4 px-6 text-right">{row.count}</td>
-                    <td className="py-4 px-6 text-right font-mono">
-                      ${row.sales.toFixed(2)}
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td
-                    colSpan={3}
-                    className="py-12 text-center text-muted-foreground"
-                  >
-                    No sales data available for this period.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+        {/* Orders Chart */}
+        <div className="bg-background border border-border rounded-3xl p-8 shadow-sm">
+          <h2 className="text-xl font-bold mb-8 flex items-center gap-2">
+            <ArchiveBoxIcon className="w-6 h-6 text-primary" />
+            Orders Overview
+          </h2>
+          <div className="h-64 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={reportData}>
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  vertical={false}
+                  stroke="hsl(var(--border))"
+                />
+                <XAxis
+                  dataKey="period"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
+                  dy={10}
+                />
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
+                  dx={-10}
+                />
+                <Tooltip content={<CustomTooltip />} />
+                <Bar
+                  dataKey="count"
+                  name="Orders"
+                  fill="hsl(var(--primary))"
+                  radius={[4, 4, 0, 0]}
+                  barSize={40}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
     </div>

@@ -1,6 +1,49 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import L from "leaflet";
 import { stores, getStoresByDistance, filterStores } from "../data/stores";
+
+// Custom hook to update map view when center changes
+const MapController = ({ center, zoom }) => {
+  const map = useMap();
+  useEffect(() => {
+    if (center) {
+      map.flyTo(center, zoom, {
+        duration: 1.5,
+      });
+    }
+  }, [center, zoom, map]);
+  return null;
+};
+
+// Custom marker icon to match the theme
+const createCustomIcon = (isSelected) => {
+  return L.divIcon({
+    className: "custom-marker",
+    html: `
+      <div class="relative w-10 h-10">
+        <div class="${
+          isSelected
+            ? "bg-linear-to-br from-blue-500 to-purple-600 shadow-blue-500/50 scale-125"
+            : "bg-blue-600 shadow-blue-500/30"
+        } w-10 h-10 rounded-xl flex items-center justify-center shadow-lg transition-transform duration-300">
+          <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+          </svg>
+        </div>
+        ${
+          isSelected
+            ? '<div class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-2 h-2 bg-blue-500 rotate-45"></div>'
+            : ""
+        }
+      </div>
+    `,
+    iconSize: [40, 40],
+    iconAnchor: [20, 45], // Center bottom anchor roughly
+    popupAnchor: [0, -45],
+  });
+};
 
 const StoreLocator = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -13,33 +56,61 @@ const StoreLocator = () => {
   });
   const [selectedStore, setSelectedStore] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [mapCenter, setMapCenter] = useState([27.7172, 85.324]); // Default Kathmandu
+  const [mapZoom, setMapZoom] = useState(13);
 
   useEffect(() => {
     let result = userLocation
       ? getStoresByDistance(userLocation.lat, userLocation.lng)
       : stores.map((s) => ({ ...s, distance: "--" }));
     result = filterStores(result, filters);
+    // Simple search filter
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(
+        (s) =>
+          s.name.toLowerCase().includes(query) ||
+          s.zip.includes(query) ||
+          s.city.toLowerCase().includes(query),
+      );
+    }
     setStoreList(result);
-  }, [userLocation, filters]);
+  }, [userLocation, filters, searchQuery]);
+
+  // Update map center when a store is selected
+  useEffect(() => {
+    if (selectedStore) {
+      setMapCenter([selectedStore.lat, selectedStore.lng]);
+      setMapZoom(15);
+    }
+  }, [selectedStore]);
 
   const handleUseMyLocation = () => {
     setIsLoading(true);
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          setUserLocation({
+          const newLocation = {
             lat: pos.coords.latitude,
             lng: pos.coords.longitude,
-          });
+          };
+          setUserLocation(newLocation);
+          setMapCenter([newLocation.lat, newLocation.lng]);
+          setMapZoom(14);
           setIsLoading(false);
         },
         () => {
-          setUserLocation({ lat: 47.6062, lng: -122.3321 });
+          // Fallback if denied
+          const fallback = { lat: 27.7172, lng: 85.324 };
+          setUserLocation(fallback);
+          setMapCenter([fallback.lat, fallback.lng]);
           setIsLoading(false);
         },
       );
     } else {
-      setUserLocation({ lat: 47.6062, lng: -122.3321 });
+      const fallback = { lat: 27.7172, lng: 85.324 };
+      setUserLocation(fallback);
+      setMapCenter([fallback.lat, fallback.lng]);
       setIsLoading(false);
     }
   };
@@ -60,7 +131,7 @@ const StoreLocator = () => {
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="lg:w-[420px] flex-shrink-0 overflow-y-auto border-r border-border bg-background"
+          className="lg:w-[420px] flex-shrink-0 overflow-y-auto border-r border-border bg-background z-10"
         >
           <div className="p-6">
             <h1 className="text-3xl font-bold text-foreground font-display mb-8">
@@ -134,7 +205,7 @@ const StoreLocator = () => {
                   onClick={() => toggleFilter(filter.id)}
                   className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
                     filters[filter.id]
-                      ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-500/25"
+                      ? "bg-linear-to-r from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-500/25"
                       : "bg-secondary text-muted-foreground hover:text-foreground hover:bg-secondary/80 border border-border"
                   }`}
                 >
@@ -160,6 +231,7 @@ const StoreLocator = () => {
                     exit={{ opacity: 0, y: -20 }}
                     transition={{ delay: index * 0.05 }}
                     onClick={() => setSelectedStore(store)}
+                    id={`store-card-${store.id}`}
                     className={`p-5 rounded-2xl cursor-pointer transition-all ${
                       selectedStore?.id === store.id
                         ? "glass-card border-blue-500/50 shadow-lg shadow-blue-500/10"
@@ -203,7 +275,7 @@ const StoreLocator = () => {
                         >
                           <motion.button
                             whileHover={{ scale: 1.02 }}
-                            className="flex-1 py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-xl font-medium shadow-lg shadow-blue-500/25"
+                            className="flex-1 py-3 bg-linear-to-r from-blue-600 to-blue-500 text-white rounded-xl font-medium shadow-lg shadow-blue-500/25"
                           >
                             View Details
                           </motion.button>
@@ -238,114 +310,63 @@ const StoreLocator = () => {
           </div>
         </motion.div>
 
-        {/* Right Panel - Map */}
-        <div className="flex-1 relative bg-[#1a1a24]">
-          <div
-            className="absolute inset-0"
-            style={{
-              backgroundImage: `linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px)`,
-              backgroundSize: "50px 50px",
-            }}
-          />
+        {/* Right Panel - Real Map */}
+        <div className="flex-1 relative z-0">
+          <MapContainer
+            center={mapCenter}
+            zoom={mapZoom}
+            className="w-full h-full"
+            zoomControl={false}
+          >
+            {/* Dark theme tiles to match the app aesthetic */}
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+              url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+            />
 
-          {/* Store Markers */}
-          {storeList.map((store) => {
-            const centerLat = 47.6062;
-            const centerLng = -122.3321;
-            const scale = 400;
-            const x = 50 + (store.lng - centerLng) * scale;
-            const y = 50 - (store.lat - centerLat) * scale;
+            <MapController center={mapCenter} zoom={mapZoom} />
 
-            return (
-              <motion.div
+            {/* Store Markers */}
+            {storeList.map((store) => (
+              <Marker
                 key={store.id}
-                initial={{ scale: 0, y: 20 }}
-                animate={{ scale: 1, y: 0 }}
-                whileHover={{ scale: 1.2 }}
-                className={`absolute cursor-pointer transition-all ${selectedStore?.id === store.id ? "z-20" : "z-10"}`}
-                style={{
-                  left: `${x}%`,
-                  top: `${y}%`,
-                  transform: "translate(-50%, -100%)",
+                position={[store.lat, store.lng]}
+                icon={createCustomIcon(selectedStore?.id === store.id)}
+                eventHandlers={{
+                  click: () => {
+                    setSelectedStore(store);
+                    const element = document.getElementById(
+                      `store-card-${store.id}`,
+                    );
+                    if (element) {
+                      element.scrollIntoView({
+                        behavior: "smooth",
+                        block: "center",
+                      });
+                    }
+                  },
                 }}
-                onClick={() => setSelectedStore(store)}
               >
-                <div
-                  className={`relative ${selectedStore?.id === store.id ? "scale-125" : ""}`}
+                <Popup
+                  className="custom-popup"
+                  closeButton={false}
+                  offset={[0, -20]}
                 >
-                  <div
-                    className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-lg ${
-                      selectedStore?.id === store.id
-                        ? "bg-gradient-to-br from-blue-500 to-purple-600 shadow-blue-500/50"
-                        : "bg-blue-600 shadow-blue-500/30"
-                    }`}
-                  >
-                    <svg
-                      className="w-5 h-5 text-white"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
+                  <div className="p-2 min-w-[150px]">
+                    <h3 className="font-bold text-gray-900">{store.name}</h3>
+                    <p className="text-xs text-gray-600">{store.address}</p>
+                    <p
+                      className={`text-xs font-medium mt-1 ${
+                        store.isOpen ? "text-emerald-600" : "text-red-500"
+                      }`}
                     >
-                      <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
-                    </svg>
+                      {store.isOpen ? "Open Now" : "Closed"}
+                    </p>
                   </div>
-                  {selectedStore?.id === store.id && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="absolute top-14 left-1/2 -translate-x-1/2 glass-card px-4 py-2 whitespace-nowrap text-sm font-medium text-white shadow-xl"
-                    >
-                      {store.name.split(" ").slice(0, 2).join(" ")}
-                    </motion.div>
-                  )}
-                </div>
-              </motion.div>
-            );
-          })}
-
-          {/* Zoom Controls */}
-          <div className="absolute right-4 bottom-4 flex flex-col gap-2">
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              className="w-10 h-10 glass-card flex items-center justify-center text-gray-400 hover:text-white"
-            >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                />
-              </svg>
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              className="w-10 h-10 glass-card flex items-center justify-center text-gray-400 hover:text-white"
-            >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M20 12H4"
-                />
-              </svg>
-            </motion.button>
-          </div>
-
-          {/* Map Attribution */}
-          <div className="absolute bottom-4 left-4 text-xs text-gray-600">
-            © FurniHome Maps
-          </div>
+                </Popup>
+              </Marker>
+            ))}
+          </MapContainer>
         </div>
       </div>
     </div>

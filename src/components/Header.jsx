@@ -69,12 +69,6 @@ const Header = () => {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
             <Link
-              to="/"
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Home
-            </Link>
-            <Link
               to="/shop"
               className="text-muted-foreground hover:text-foreground transition-colors"
             >
@@ -146,9 +140,9 @@ const Header = () => {
               ) : (
                 <Link
                   to="/login"
-                  className="p-2 rounded-full hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
+                  className="px-4 py-2 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors text-sm font-medium"
                 >
-                  <User className="h-5 w-5" />
+                  Sign In
                 </Link>
               )}
 
@@ -224,12 +218,6 @@ const Header = () => {
                 />
               </form>
               <nav className="flex flex-col gap-2">
-                <Link
-                  to="/"
-                  className="px-4 py-2.5 rounded-lg hover:bg-secondary text-sm font-medium"
-                >
-                  Home
-                </Link>
                 <Link
                   to="/shop"
                   className="px-4 py-2.5 rounded-lg hover:bg-secondary text-sm font-medium"
