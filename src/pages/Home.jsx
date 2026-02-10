@@ -142,8 +142,8 @@ const Home = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {featuredProducts.map((product) => (
-              <div key={product.id} className="group">
-                <Link to={`/product/${product.id}`}>
+              <div key={product._id || product.id} className="group">
+                <Link to={`/product/${product._id || product.id}`}>
                   <div className="relative overflow-hidden rounded-2xl aspect-[4/5] mb-4 bg-white">
                     <img
                       src={product.image}

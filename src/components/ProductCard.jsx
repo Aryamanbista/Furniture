@@ -3,11 +3,21 @@ import { motion } from "framer-motion";
 import StarRating from "./ui/StarRating";
 
 const ProductCard = ({ product }) => {
-  const { id, name, price, originalPrice, rating, image, isSale, category } =
-    product;
+  const {
+    _id,
+    id,
+    name,
+    price,
+    originalPrice,
+    rating,
+    image,
+    isSale,
+    category,
+  } = product;
+  const productId = _id || id;
 
   return (
-    <Link to={`/product/${id}`} className="group block">
+    <Link to={`/product/${productId}`} className="group block">
       <div className="relative aspect-[3/4] overflow-hidden bg-secondary rounded-none sm:rounded-md mb-4">
         {isSale && (
           <span className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-2 py-1 text-[10px] font-medium tracking-wider uppercase z-20 shadow-sm text-black">

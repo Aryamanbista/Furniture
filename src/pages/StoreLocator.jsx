@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
-import { stores, getStoresByDistance, filterStores } from "../data/stores";
+import { storesAPI } from "../services/api";
+import { calculateDistance, filterStores } from "../data/stores";
 
 // Custom hook to update map view when center changes
 const MapController = ({ center, zoom }) => {
@@ -47,7 +48,8 @@ const createCustomIcon = (isSelected) => {
 
 const StoreLocator = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [storeList, setStoreList] = useState(stores);
+  const [allStores, setAllStores] = useState([]);
+  const [storeList, setStoreList] = useState([]);
   const [userLocation, setUserLocation] = useState(null);
   const [filters, setFilters] = useState({
     openNow: false,
@@ -59,10 +61,31 @@ const StoreLocator = () => {
   const [mapCenter, setMapCenter] = useState([27.7172, 85.324]); // Default Kathmandu
   const [mapZoom, setMapZoom] = useState(13);
 
+  // Load stores from API on mount
+  useEffect(() => {
+    storesAPI
+      .getAll()
+      .then((data) => {
+        setAllStores(data);
+        setStoreList(data.map((s) => ({ ...s, distance: "--" })));
+      })
+      .catch((err) => console.error("Failed to load stores:", err));
+  }, []);
+
   useEffect(() => {
     let result = userLocation
-      ? getStoresByDistance(userLocation.lat, userLocation.lng)
-      : stores.map((s) => ({ ...s, distance: "--" }));
+      ? allStores
+          .map((store) => ({
+            ...store,
+            distance: calculateDistance(
+              userLocation.lat,
+              userLocation.lng,
+              store.lat,
+              store.lng,
+            ),
+          }))
+          .sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance))
+      : allStores.map((s) => ({ ...s, distance: "--" }));
     result = filterStores(result, filters);
     // Simple search filter
     if (searchQuery) {
@@ -75,7 +98,7 @@ const StoreLocator = () => {
       );
     }
     setStoreList(result);
-  }, [userLocation, filters, searchQuery]);
+  }, [allStores, userLocation, filters, searchQuery]);
 
   // Update map center when a store is selected
   useEffect(() => {

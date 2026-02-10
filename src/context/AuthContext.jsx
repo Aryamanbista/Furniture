@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
+import { authAPI } from "../services/api";
 
 const AuthContext = createContext(null);
 
@@ -15,111 +16,43 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check for existing session in localStorage
-    const savedUser = localStorage.getItem("furnihome_user");
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
+    // Restore session from token
+    const token = localStorage.getItem("furnihome_token");
+    if (token) {
+      authAPI
+        .getMe()
+        .then((data) => {
+          setUser(data.user);
+        })
+        .catch(() => {
+          // Token expired or invalid
+          localStorage.removeItem("furnihome_token");
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    } else {
+      setLoading(false);
     }
-    setLoading(false);
   }, []);
 
   const login = async (email, password) => {
-    // Mock login - in production, this would call an API
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        // ADMIN LOGIN
-        if (email === "admin@furnihome.com" && password === "admin123") {
-          const adminUser = {
-            id: "admin-001",
-            email: "admin@furnihome.com",
-            name: "Administrator",
-            role: "admin",
-            memberSince: "2023",
-          };
-          setUser(adminUser);
-          localStorage.setItem("furnihome_user", JSON.stringify(adminUser));
-          resolve(adminUser);
-          return;
-        }
-
-        // Check for registered users
-        const users = JSON.parse(
-          localStorage.getItem("furnihome_users") || "[]",
-        );
-        const existingUser = users.find((u) => u.email === email);
-
-        if (existingUser && existingUser.password === password) {
-          const userData = {
-            id: existingUser.id,
-            email: existingUser.email,
-            name: existingUser.name,
-            role: existingUser.role || "customer",
-            memberSince: existingUser.memberSince,
-          };
-          setUser(userData);
-          localStorage.setItem("furnihome_user", JSON.stringify(userData));
-          resolve(userData);
-        } else if (email === "demo@furnihome.com" && password === "demo123") {
-          // Demo account
-          const demoUser = {
-            id: 1,
-            email: "demo@furnihome.com",
-            name: "Jane Doe",
-            role: "customer",
-            memberSince: "2021",
-          };
-          setUser(demoUser);
-          localStorage.setItem("furnihome_user", JSON.stringify(demoUser));
-          resolve(demoUser);
-        } else {
-          reject(new Error("Invalid email or password"));
-        }
-      }, 500);
-    });
+    const data = await authAPI.login(email, password);
+    localStorage.setItem("furnihome_token", data.token);
+    setUser(data.user);
+    return data.user;
   };
 
   const register = async (name, email, password) => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        const users = JSON.parse(
-          localStorage.getItem("furnihome_users") || "[]",
-        );
-
-        if (users.find((u) => u.email === email)) {
-          reject(new Error("Email already registered"));
-          return;
-        }
-
-        const newUser = {
-          id: Date.now(),
-          name,
-          email,
-          password,
-          role: "customer",
-          memberSince: new Date().getFullYear().toString(),
-        };
-
-        users.push(newUser);
-        localStorage.setItem("furnihome_users", JSON.stringify(users));
-
-        const userData = {
-          id: newUser.id,
-          email: newUser.email,
-          name: newUser.name,
-          role: newUser.role,
-          memberSince: newUser.memberSince,
-        };
-
-        setUser(userData);
-        localStorage.setItem("furnihome_user", JSON.stringify(userData));
-        resolve(userData);
-      }, 500);
-    });
+    const data = await authAPI.register(name, email, password);
+    localStorage.setItem("furnihome_token", data.token);
+    setUser(data.user);
+    return data.user;
   };
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem("furnihome_user");
+    localStorage.removeItem("furnihome_token");
   };
 
   const value = {

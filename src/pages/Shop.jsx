@@ -87,12 +87,12 @@ const Shop = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {filteredProducts.map((product) => (
             <motion.div
-              key={product.id}
+              key={product._id || product.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="group"
             >
-              <Link to={`/product/${product.id}`}>
+              <Link to={`/product/${product._id || product.id}`}>
                 <div className="relative overflow-hidden rounded-2xl bg-secondary/30 aspect-square mb-4">
                   <img
                     src={product.image}

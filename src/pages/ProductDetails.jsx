@@ -10,7 +10,7 @@ import {
   ShieldCheck,
   RefreshCw,
 } from "lucide-react";
-import { getProductById } from "../data/products";
+import { productsAPI } from "../services/api";
 import { useApp } from "../context/AppContext";
 import { useAuth } from "../context/AuthContext";
 import StarRating from "../components/ui/StarRating";
@@ -28,8 +28,12 @@ const ProductDetails = () => {
   const [activeTab, setActiveTab] = useState("details");
 
   useEffect(() => {
-    const data = getProductById(id);
-    if (data) setProduct(data);
+    productsAPI
+      .getById(id)
+      .then((data) => {
+        if (data) setProduct(data);
+      })
+      .catch((err) => console.error("Failed to load product:", err));
   }, [id]);
 
   if (!product)

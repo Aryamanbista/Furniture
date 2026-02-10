@@ -29,6 +29,7 @@ const AdminProducts = () => {
     price: "",
     image: "",
     description: "",
+    sku: "",
     inStock: true,
   });
 
@@ -54,6 +55,7 @@ const AdminProducts = () => {
         image:
           "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&h=300&fit=crop",
         description: "",
+        sku: `PROD-${Date.now()}`,
         inStock: true,
       });
     }
@@ -75,7 +77,7 @@ const AdminProducts = () => {
     };
 
     if (editingProduct) {
-      updateProduct({ ...productData, id: editingProduct.id });
+      updateProduct({ ...productData, _id: editingProduct._id });
     } else {
       addProduct(productData);
     }
@@ -196,7 +198,7 @@ const AdminProducts = () => {
             <tbody className="divide-y divide-border">
               {products.map((product) => (
                 <tr
-                  key={product.id}
+                  key={product._id || product.id}
                   className="hover:bg-secondary/20 transition-colors"
                 >
                   <td className="py-4 px-6">
@@ -251,7 +253,7 @@ const AdminProducts = () => {
                         <PencilSquareIcon className="w-5 h-5" />
                       </button>
                       <button
-                        onClick={() => handleDelete(product.id)}
+                        onClick={() => handleDelete(product._id)}
                         className="p-2.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl transition-all"
                         title="Delete product"
                       >

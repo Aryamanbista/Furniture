@@ -10,7 +10,7 @@ import StarRating from "../components/ui/StarRating";
 const OrderHistory = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
-  const { orders, addReview } = useApp();
+  const { orders, addReview, loadOrders } = useApp();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [dateFilter, setDateFilter] = useState("30");
@@ -27,6 +27,8 @@ const OrderHistory = () => {
   useEffect(() => {
     if (!isAuthenticated) {
       navigate("/login");
+    } else {
+      loadOrders();
     }
   }, [isAuthenticated, navigate]);
 
@@ -37,8 +39,9 @@ const OrderHistory = () => {
   const filteredOrders = orders.filter((order) => {
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
+      const orderId = order.orderId || order._id || "";
       return (
-        order.id.toLowerCase().includes(q) ||
+        orderId.toLowerCase().includes(q) ||
         order.items.some((item) => item.name.toLowerCase().includes(q))
       );
     }
@@ -59,8 +62,7 @@ const OrderHistory = () => {
   };
   const submitReview = () => {
     if (selectedItem)
-      addReview(selectedItem.id, {
-        userId: user.id,
+      addReview(selectedItem.productId, {
         userName: user.name,
         rating: newReview.rating,
         title: newReview.title,
@@ -270,7 +272,7 @@ const OrderHistory = () => {
                 <AnimatePresence>
                   {paginatedOrders.map((order, index) => (
                     <motion.div
-                      key={order.id}
+                      key={order._id || order.orderId}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
@@ -299,7 +301,7 @@ const OrderHistory = () => {
                             Order #
                           </p>
                           <p className="font-medium text-foreground font-mono">
-                            {order.id}
+                            {order.orderId || order._id}
                           </p>
                         </div>
                         <div
@@ -359,7 +361,7 @@ const OrderHistory = () => {
                                   )
                                 )}
                                 <Link
-                                  to={`/product/${item.id}`}
+                                  to={`/product/${item.productId}`}
                                   className="px-3 py-1.5 bg-secondary text-foreground text-xs font-medium rounded-lg hover:bg-secondary/80 transition-colors"
                                 >
                                   Buy Again
