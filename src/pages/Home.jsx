@@ -68,14 +68,20 @@ const Home = () => {
       {/* Featured Categories */}
       <section className="py-24 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-16"
+          >
             <span className="text-sm font-bold tracking-widest uppercase text-primary mb-2 block">
               Categories
             </span>
             <h2 className="text-4xl font-serif font-bold text-foreground">
               Curated for You
             </h2>
-          </div>
+          </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
@@ -95,26 +101,33 @@ const Home = () => {
                 link: "/shop?cat=tables",
               },
             ].map((cat, idx) => (
-              <Link
-                to="/shop"
+              <motion.div
                 key={idx}
-                className="group relative h-96 overflow-hidden rounded-2xl"
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.6, delay: idx * 0.15 }}
               >
-                <img
-                  src={cat.img}
-                  alt={cat.name}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors" />
-                <div className="absolute bottom-8 left-8">
-                  <h3 className="text-3xl font-bold text-white mb-2">
-                    {cat.name}
-                  </h3>
-                  <span className="text-white/80 group-hover:text-white flex items-center gap-2 transition-colors">
-                    Explore <ArrowRight className="w-4 h-4" />
-                  </span>
-                </div>
-              </Link>
+                <Link
+                  to="/shop"
+                  className="group relative h-96 overflow-hidden rounded-2xl block"
+                >
+                  <img
+                    src={cat.img}
+                    alt={cat.name}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors" />
+                  <div className="absolute bottom-8 left-8">
+                    <h3 className="text-3xl font-bold text-white mb-2">
+                      {cat.name}
+                    </h3>
+                    <span className="text-white/80 group-hover:text-white flex items-center gap-2 transition-colors">
+                      Explore <ArrowRight className="w-4 h-4" />
+                    </span>
+                  </div>
+                </Link>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -123,7 +136,13 @@ const Home = () => {
       {/* Featured Collection */}
       <section className="py-24 bg-secondary/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-end mb-12">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6 }}
+            className="flex justify-between items-end mb-12"
+          >
             <div>
               <span className="text-sm font-bold tracking-widest uppercase text-primary mb-2 block">
                 Best Sellers
@@ -138,11 +157,18 @@ const Home = () => {
             >
               View All <ArrowRight className="w-4 h-4" />
             </Link>
-          </div>
+          </motion.div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {featuredProducts.map((product) => (
-              <div key={product._id || product.id} className="group">
+            {featuredProducts.map((product, idx) => (
+              <motion.div
+                key={product._id || product.id}
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.6, delay: idx * 0.1 }}
+                className="group"
+              >
                 <Link to={`/product/${product._id || product.id}`}>
                   <div className="relative overflow-hidden rounded-2xl aspect-[4/5] mb-4 bg-white">
                     <img
@@ -176,7 +202,7 @@ const Home = () => {
                     </div>
                   </div>
                 </Link>
-              </div>
+              </motion.div>
             ))}
           </div>
 
@@ -195,14 +221,26 @@ const Home = () => {
       <section className="py-24 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-16 items-center">
-            <div className="order-2 md:order-1">
+            <motion.div
+              initial={{ opacity: 0, x: -50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.8 }}
+              className="order-2 md:order-1"
+            >
               <img
                 src="https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?w=1000&fit=crop"
                 alt="Interior"
                 className="rounded-3xl shadow-2xl"
               />
-            </div>
-            <div className="order-1 md:order-2">
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, x: 50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="order-1 md:order-2"
+            >
               <span className="text-sm font-bold tracking-widest uppercase text-primary mb-2 block">
                 Quality First
               </span>
@@ -221,12 +259,16 @@ const Home = () => {
                   "Handcrafted Details",
                   "Sustainable Sourcing",
                   "5-Year Warranty",
-                ].map((item) => (
-                  <li
+                ].map((item, idx) => (
+                  <motion.li
                     key={item}
+                    initial={{ opacity: 0, y: 10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.4 + idx * 0.1 }}
                     className="flex items-center gap-3 text-foreground font-medium"
                   >
-                    <div className="w-6 h-6 rounded-full bg-green-100 dark:bg-green-900/30 text-green-600 flex items-center justify-center">
+                    <div className="w-6 h-6 rounded-full bg-green-100 dark:bg-green-900/30 text-green-600 flex items-center justify-center border border-green-200 dark:border-green-800">
                       <svg
                         viewBox="0 0 24 24"
                         fill="none"
@@ -236,7 +278,7 @@ const Home = () => {
                       </svg>
                     </div>
                     {item}
-                  </li>
+                  </motion.li>
                 ))}
               </ul>
               <Link
@@ -245,7 +287,7 @@ const Home = () => {
               >
                 Read Our Story <ArrowRight className="w-4 h-4" />
               </Link>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>

@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = "http://localhost:5001/api";
 
 // Helper to get stored token
 const getToken = () => localStorage.getItem("furnihome_token");

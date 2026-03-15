@@ -88,8 +88,10 @@ const Shop = () => {
           {filteredProducts.map((product) => (
             <motion.div
               key={product._id || product.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.5 }}
               className="group"
             >
               <Link to={`/product/${product._id || product.id}`}>
