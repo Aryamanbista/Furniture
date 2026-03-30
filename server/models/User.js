@@ -29,8 +29,14 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: () => new Date().getFullYear().toString(),
     },
+    wishlist: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Product",
+      },
+    ],
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 // Hash password before saving

@@ -13,11 +13,15 @@ import {
   Moon,
   MapPin,
   LogOut,
+  Heart,
+  Settings,
 } from "lucide-react";
+import { useWishlist } from "../context/WishlistContext";
 
 const Header = () => {
   const { user, isAuthenticated, logout } = useAuth();
   const { theme, setTheme } = useTheme();
+  const { wishlist } = useWishlist();
   const navigate = useNavigate();
   const location = useLocation();
   const [isScrolled, setIsScrolled] = useState(false);
@@ -60,8 +64,13 @@ const Header = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-20">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 group">
-            <span className="text-2xl font-serif font-bold tracking-tight text-foreground group-hover:text-primary/80 transition-colors">
+          <Link to="/" className="flex items-center gap-2.5 group">
+            <img
+              src="/FurniHome.png"
+              alt="Logo"
+              className="h-9 w-auto object-contain rounded-full"
+            />
+            <span className="text-2xl font-serif font-bold tracking-tight text-foreground group-hover:text-primary transition-colors">
               FurniHome.
             </span>
           </Link>
@@ -113,73 +122,100 @@ const Header = () => {
               />
             </form>
 
-            {/* Theme Toggle */}
-            <button
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="flex rounded-full hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
-              aria-label="Toggle theme"
-            >
-              <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-              <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-            </button>
-
-            {/* User Menu */}
-            <div className="relative">
-              {isAuthenticated ? (
-                <button
-                  onClick={() => setShowUserMenu(!showUserMenu)}
-                  className="flex items-center gap-2 p-1 pl-2 pr-4 rounded-full border border-border hover:bg-secondary transition-all"
-                >
-                  <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-medium">
-                    {user?.name?.charAt(0)}
-                  </div>
-                  <span className="text-sm font-medium max-w-[80px] truncate hidden sm:block">
-                    {user?.name?.split(" ")[0]}
-                  </span>
-                </button>
-              ) : (
-                <Link
-                  to="/login"
-                  className="px-4 py-2 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors text-sm font-medium"
-                >
-                  Sign In
-                </Link>
-              )}
-
-              <AnimatePresence>
-                {showUserMenu && isAuthenticated && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                    className="absolute right-0 mt-2 w-56 rounded-xl border border-slate-200 dark:border-slate-700 bg-white/90 dark:bg-slate-900 p-2 shadow-xl z-50 text-slate-900 dark:text-white"
-                  >
-                    <div className="px-2 py-1.5 text-sm font-semibold">
-                      {user?.name}
-                    </div>
-                    <div className="h-px bg-border my-1" />
-                    <Link
-                      to="/orders"
-                      className="flex items-center gap-2 px-2 py-2 text-sm rounded-md hover:bg-accent hover:text-accent-foreground"
-                    >
-                      <ShoppingBag className="w-4 h-4" /> Orders
-                    </Link>
-                    <Link
-                      to="/store-locator"
-                      className="flex items-center gap-2 px-2 py-2 text-sm rounded-md hover:bg-accent hover:text-accent-foreground"
-                    >
-                      <MapPin className="w-4 h-4" /> Find Store
-                    </Link>
-                    <div className="h-px bg-border my-1" />
-                    <button
-                      onClick={handleLogout}
-                      className="flex w-full items-center gap-2 px-2 py-2 text-sm rounded-md text-destructive hover:bg-destructive/10"
-                    >
-                      <LogOut className="w-4 h-4" /> Sign Out
-                    </button>
-                  </motion.div>
+            <div className="flex items-center gap-1 sm:gap-2">
+              {/* Theme Toggle */}
+              <button
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                className="p-2 rounded-full hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
+                aria-label="Toggle theme"
+              >
+                {theme === "dark" ? (
+                  <Sun className="h-5 w-5" />
+                ) : (
+                  <Moon className="h-5 w-5" />
                 )}
-              </AnimatePresence>
+              </button>
+
+              {/* Wishlist Link - Dominant */}
+              <Link
+                to="/wishlist"
+                className="p-2.5 relative rounded-full bg-rose-50 dark:bg-rose-500/10 text-rose-500 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-colors"
+                aria-label="Wishlist"
+              >
+                <Heart className="h-5 w-5" />
+                {wishlist.length > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-rose-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-background">
+                    {wishlist.length}
+                  </span>
+                )}
+              </Link>
+
+              {/* Orders/Cart Link - Dominant */}
+              <Link
+                to="/orders"
+                className="p-2.5 rounded-full bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-500/20 transition-colors"
+                aria-label="Orders"
+              >
+                <ShoppingBag className="h-5 w-5" />
+              </Link>
+
+              {/* User Menu */}
+              <div className="relative ml-1">
+                {isAuthenticated ? (
+                  <button
+                    onClick={() => setShowUserMenu(!showUserMenu)}
+                    className="flex items-center gap-2 p-1 pl-2 pr-4 rounded-full border border-border hover:bg-secondary transition-all"
+                  >
+                    <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-medium">
+                      {user?.name?.charAt(0)}
+                    </div>
+                    <span className="text-sm font-medium max-w-[80px] truncate hidden lg:block">
+                      {user?.name?.split(" ")[0]}
+                    </span>
+                  </button>
+                ) : (
+                  <Link
+                    to="/login"
+                    className="px-4 py-2 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors text-sm font-medium"
+                  >
+                    Sign In
+                  </Link>
+                )}
+
+                <AnimatePresence>
+                  {showUserMenu && isAuthenticated && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                      className="absolute right-0 mt-2 w-56 rounded-xl border border-border bg-background p-2 shadow-xl z-50"
+                    >
+                      <div className="px-2 py-1.5 text-sm font-semibold border-b border-border mb-1">
+                        {user?.name}
+                      </div>
+                      <Link
+                        to="/profile"
+                        className="flex items-center gap-2 px-2 py-2 text-sm rounded-md hover:bg-secondary"
+                      >
+                        <User className="w-4 h-4" /> Profile
+                      </Link>
+                      <Link
+                        to="/settings"
+                        className="flex items-center gap-2 px-2 py-2 text-sm rounded-md hover:bg-secondary"
+                      >
+                        <Settings className="w-4 h-4" /> Settings
+                      </Link>
+                      <div className="h-px bg-border my-1" />
+                      <button
+                        onClick={handleLogout}
+                        className="flex w-full items-center gap-2 px-2 py-2 text-sm rounded-md text-destructive hover:bg-destructive/10"
+                      >
+                        <LogOut className="w-4 h-4" /> Sign Out
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
 
             {/* Mobile Menu Toggle */}
@@ -224,6 +260,14 @@ const Header = () => {
                 >
                   Shop
                 </Link>
+                {isAuthenticated && (
+                  <Link
+                    to="/wishlist"
+                    className="px-4 py-2.5 rounded-lg hover:bg-secondary text-sm font-medium flex items-center gap-2"
+                  >
+                    <Heart className="w-4 h-4" /> Wishlist
+                  </Link>
+                )}
                 <Link
                   to="/about"
                   className="px-4 py-2.5 rounded-lg hover:bg-secondary text-sm font-medium"

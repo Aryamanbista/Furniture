@@ -1,7 +1,7 @@
 {
   "name": "courts-ecommerce-backend",
   "version": "1.0.0",
-  "description": "Backend API for COURTS Ecommerce Web Application",
+  "description": "Backend API for FurniHome Application",
   "main": "server.js",
   "scripts": {
     "dev": "nodemon server.js",

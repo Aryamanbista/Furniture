@@ -31,8 +31,12 @@ const AdminDashboard = () => {
       navigate("/");
       return;
     }
-    setReportData(generateSalesReport(reportType));
-  }, [isAdmin, navigate, generateSalesReport, reportType, orders]);
+    const fetchReport = async () => {
+      const data = await generateSalesReport(reportType);
+      setReportData(data);
+    };
+    fetchReport();
+  }, [isAdmin, navigate, generateSalesReport, reportType]);
 
   if (!isAdmin) return null;
 

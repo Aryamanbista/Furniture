@@ -9,10 +9,12 @@ import {
   Truck,
   ShieldCheck,
   RefreshCw,
+  Heart,
 } from "lucide-react";
 import { productsAPI } from "../services/api";
 import { useApp } from "../context/AppContext";
 import { useAuth } from "../context/AuthContext";
+import { useWishlist } from "../context/WishlistContext";
 import StarRating from "../components/ui/StarRating";
 
 const ProductDetails = () => {
@@ -20,12 +22,20 @@ const ProductDetails = () => {
   const navigate = useNavigate();
   const { setCheckoutProduct } = useApp();
   const { isAuthenticated } = useAuth();
+  const { toggleWishlist, isInWishlist } = useWishlist();
 
   const [product, setProduct] = useState(null);
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedColor, setSelectedColor] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState("details");
+
+  const isSaved = product ? isInWishlist(product._id || product.id) : false;
+
+  const handleWishlistToggle = async () => {
+    if (!product) return;
+    await toggleWishlist(product);
+  };
 
   useEffect(() => {
     productsAPI
@@ -138,11 +148,11 @@ const ProductDetails = () => {
                 <p className="text-sm font-medium mb-3">
                   Color:{" "}
                   <span className="text-muted-foreground">
-                    {product.colorNames[selectedColor]}
+                    {product.colorNames?.[selectedColor]}
                   </span>
                 </p>
                 <div className="flex gap-3">
-                  {product.colors.map((color, idx) => (
+                  {product.colors?.map((color, idx) => (
                     <button
                       key={idx}
                       onClick={() => setSelectedColor(idx)}
@@ -182,9 +192,23 @@ const ProductDetails = () => {
                 </div>
                 <button
                   onClick={handleBuyNow}
-                  className="flex-1 bg-primary text-primary-foreground h-10 px-8 font-medium uppercase tracking-wide text-sm hover:bg-primary/90 transition-colors"
+                  disabled={!product.inStock}
+                  className="flex-1 bg-primary text-primary-foreground h-10 px-8 font-medium uppercase tracking-wide text-sm hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Buy Now - NPR {(product.price * quantity).toFixed(2)}
+                  {product.inStock
+                    ? `Buy Now - NPR ${(product.price * quantity).toFixed(2)}`
+                    : "Out of Stock"}
+                </button>
+                <button
+                  onClick={handleWishlistToggle}
+                  className="h-10 w-10 flex items-center justify-center border border-border bg-card hover:bg-secondary transition-colors"
+                  aria-label="Add to Wishlist"
+                >
+                  <Heart
+                    className={`w-5 h-5 transition-colors ${
+                      isSaved ? "fill-red-500 stroke-red-500" : "stroke-muted-foreground"
+                    }`}
+                  />
                 </button>
               </div>
 
@@ -229,7 +253,7 @@ const ProductDetails = () => {
                 </div>
                 <div className="py-2 text-sm text-muted-foreground min-h-[100px]">
                   {activeTab === "details" && <p>{product.description}</p>}
-                  {activeTab === "dimensions" && (
+                  {activeTab === "dimensions" && product.dimensions && (
                     <ul className="space-y-1">
                       {Object.entries(product.dimensions).map(([k, v]) => (
                         <li

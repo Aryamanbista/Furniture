@@ -117,3 +117,12 @@ export const storesAPI = {
 export const adminAPI = {
   getReports: (type = "monthly") => apiRequest(`/admin/reports?type=${type}`),
 };
+
+// --- Wishlist API ---
+export const wishlistAPI = {
+  get: () => apiRequest("/wishlist"),
+  toggle: (productId) =>
+    apiRequest(`/wishlist/toggle/${productId}`, {
+      method: "POST",
+    }),
+};

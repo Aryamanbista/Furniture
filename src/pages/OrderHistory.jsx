@@ -22,7 +22,6 @@ const OrderHistory = () => {
     content: "",
   });
   const [currentPage, setCurrentPage] = useState(1);
-  const [activeTab, setActiveTab] = useState("orders");
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -92,93 +91,10 @@ const OrderHistory = () => {
       year: "numeric",
     });
 
-  const sidebarLinks = [
-    {
-      id: "profile",
-      name: "Profile",
-      icon: "M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z",
-    },
-    {
-      id: "orders",
-      name: "Order History",
-      icon: "M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z",
-    },
-    {
-      id: "addresses",
-      name: "Address Book",
-      icon: "M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z",
-    },
-    {
-      id: "payments",
-      name: "Payment Methods",
-      icon: "M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z",
-    },
-    {
-      id: "settings",
-      name: "Settings",
-      icon: "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z",
-    },
-  ];
-
   return (
     <div className="min-h-screen bg-background pt-24 pb-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Sidebar */}
-          <motion.aside
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="lg:w-72 flex-shrink-0"
-          >
-            <div className="bg-card border border-border shadow-sm rounded-2xl p-6">
-              <div className="flex items-center gap-4 mb-8 pb-6 border-b border-border">
-                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center">
-                  <span className="text-primary font-bold text-xl">
-                    {user?.name?.charAt(0)?.toUpperCase() || "U"}
-                  </span>
-                </div>
-                <div>
-                  <p className="font-semibold text-foreground">{user?.name}</p>
-                  <p className="text-sm text-muted-foreground">
-                    Member since {user?.memberSince}
-                  </p>
-                </div>
-              </div>
-
-              <nav className="space-y-1">
-                {sidebarLinks.map((link) => (
-                  <motion.button
-                    key={link.id}
-                    whileHover={{ x: 4 }}
-                    onClick={() => setActiveTab(link.id)}
-                    className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm transition-all ${
-                      activeTab === link.id
-                        ? "bg-primary text-primary-foreground shadow-md"
-                        : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-                    }`}
-                  >
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d={link.icon}
-                      />
-                    </svg>
-                    {link.name}
-                  </motion.button>
-                ))}
-              </nav>
-            </div>
-          </motion.aside>
-
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Main Content */}
-          <main className="flex-1">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -466,8 +382,6 @@ const OrderHistory = () => {
                 )}
               </div>
             )}
-          </main>
-        </div>
       </div>
 
       {/* Write Review Modal */}

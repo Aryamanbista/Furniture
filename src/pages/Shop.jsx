@@ -11,6 +11,7 @@ const Shop = () => {
   const { products } = useApp();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [sortBy, setSortBy] = useState("newest");
   const [filteredProducts, setFilteredProducts] = useState(products);
 
   const categories = [
@@ -36,8 +37,19 @@ const Shop = () => {
       );
     }
 
+    // Sorting
+    if (sortBy === "price-low") {
+      result.sort((a, b) => a.price - b.price);
+    } else if (sortBy === "price-high") {
+      result.sort((a, b) => b.price - a.price);
+    } else if (sortBy === "rating") {
+      result.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+    } else { // newest fallback
+      result.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+    }
+
     setFilteredProducts(result);
-  }, [products, searchTerm, selectedCategory]);
+  }, [products, searchTerm, selectedCategory, sortBy]);
 
   return (
     <div className="pt-24 pb-16 px-4 md:px-8 max-w-7xl mx-auto">
@@ -79,6 +91,20 @@ const Shop = () => {
                 {cat.name}
               </button>
             ))}
+          </div>
+
+          {/* Sort Dropdown */}
+          <div className="flex items-center">
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="px-4 py-2 pr-8 bg-secondary/50 rounded-full border-none focus:ring-2 focus:ring-primary/50 outline-none text-sm text-foreground cursor-pointer appearance-none"
+            >
+              <option value="newest">Sort by: Newest</option>
+              <option value="price-low">Price: Low to High</option>
+              <option value="price-high">Price: High to Low</option>
+              <option value="rating">Top Rated</option>
+            </select>
           </div>
         </div>
       </div>
@@ -139,6 +165,7 @@ const Shop = () => {
             onClick={() => {
               setSearchTerm("");
               setSelectedCategory("all");
+              setSortBy("newest");
             }}
             className="mt-6 text-primary hover:underline"
           >

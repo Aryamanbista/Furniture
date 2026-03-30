@@ -1,5 +1,6 @@
 const express = require("express");
 const Order = require("../models/Order");
+const Product = require("../models/Product");
 const { auth } = require("../middleware/auth");
 
 const router = express.Router();
@@ -8,6 +9,21 @@ const router = express.Router();
 router.post("/", auth, async (req, res) => {
   try {
     const { items, total, shippingInfo } = req.body;
+
+    // Validate stock for each item
+    for (const item of items) {
+      const product = await Product.findById(item.productId);
+      if (!product) {
+        return res
+          .status(404)
+          .json({ error: `Product with ID ${item.productId} not found` });
+      }
+      if (!product.inStock) {
+        return res
+          .status(400)
+          .json({ error: `Product "${product.name}" is out of stock` });
+      }
+    }
 
     const order = new Order({
       user: req.user._id,
@@ -65,7 +81,7 @@ router.put("/:orderId/review/:productId", auth, async (req, res) => {
     }
 
     const item = order.items.find(
-      (item) => item.productId === parseInt(req.params.productId),
+      (item) => item.productId === req.params.productId,
     );
     if (item) {
       item.reviewed = true;

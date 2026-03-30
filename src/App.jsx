@@ -21,6 +21,10 @@ import OrderHistory from "./pages/OrderHistory";
 import StoreLocator from "./pages/StoreLocator";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminProducts from "./pages/AdminProducts";
+import Wishlist from "./pages/Wishlist";
+import Profile from "./pages/Profile";
+import Settings from "./pages/Settings";
+import { WishlistProvider } from "./context/WishlistContext";
 import "./index.css";
 
 // Layout component that conditionally renders header/footer
@@ -42,8 +46,9 @@ function App() {
     <Router>
       <ThemeProvider defaultTheme="system" storageKey="furnihome-theme">
         <AuthProvider>
-          <AppProvider>
-            <div className="min-h-screen flex flex-col bg-background text-foreground transition-colors duration-300">
+          <WishlistProvider>
+            <AppProvider>
+              <div className="min-h-screen flex flex-col bg-background text-foreground transition-colors duration-300">
               <Layout>
                 <Routes>
                   <Route path="/" element={<Home />} />
@@ -58,10 +63,14 @@ function App() {
                   <Route path="/store-locator" element={<StoreLocator />} />
                   <Route path="/admin" element={<AdminDashboard />} />
                   <Route path="/admin/products" element={<AdminProducts />} />
+                  <Route path="/wishlist" element={<Wishlist />} />
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/settings" element={<Settings />} />
                 </Routes>
               </Layout>
-            </div>
-          </AppProvider>
+              </div>
+            </AppProvider>
+          </WishlistProvider>
         </AuthProvider>
       </ThemeProvider>
     </Router>

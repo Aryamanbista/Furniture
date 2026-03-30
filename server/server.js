@@ -9,6 +9,7 @@ const orderRoutes = require("./routes/orders");
 const reviewRoutes = require("./routes/reviews");
 const storeRoutes = require("./routes/stores");
 const adminRoutes = require("./routes/admin");
+const wishlistRoutes = require("./routes/wishlist");
 
 const app = express();
 
@@ -23,10 +24,11 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/stores", storeRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/wishlist", wishlistRoutes);
 
 // Health check
 app.get("/api/health", (req, res) => {
-  res.json({ status: "ok", message: "COURTS Ecommerce API is running" });
+  res.json({ status: "ok", message: "FurniHome API is running" });
 });
 
 // Connect to MongoDB and start server

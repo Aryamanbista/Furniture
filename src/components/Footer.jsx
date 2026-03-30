@@ -31,27 +31,14 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12">
           {/* Brand Section */}
           <div className="lg:col-span-2">
-            <Link to="/" className="flex items-center gap-3 mb-6">
-              <motion.div
-                whileHover={{ scale: 1.05, rotate: 5 }}
-                className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/25"
-              >
-                <svg
-                  className="w-6 h-6 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-                  />
-                </svg>
-              </motion.div>
-              <span className="text-xl font-bold font-display text-foreground">
-                FurniHome
+            <Link to="/" className="flex items-center gap-3 mb-6 group">
+              <img
+                src="/FurniHome.png"
+                alt="Logo"
+                className="h-10 w-auto object-contain rounded-full"
+              />
+              <span className="text-2xl font-serif font-bold tracking-tight text-foreground group-hover:text-primary transition-colors">
+                FurniHome.
               </span>
             </Link>
             <p className="text-muted-foreground text-sm leading-relaxed mb-6 max-w-sm">

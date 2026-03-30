@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const orderItemSchema = new mongoose.Schema({
   productId: {
-    type: Number,
+    type: String,
     required: true,
   },
   name: {
@@ -35,6 +35,11 @@ const orderSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
+      default: () => {
+        const prefix = 400 + Math.floor(Math.random() * 100);
+        const suffix = 1000 + Math.floor(Math.random() * 9000);
+        return `${prefix}-${suffix}`;
+      },
     },
     user: {
       type: mongoose.Schema.Types.ObjectId,
@@ -67,15 +72,5 @@ const orderSchema = new mongoose.Schema(
   },
   { timestamps: true },
 );
-
-// Generate order ID before saving
-orderSchema.pre("save", function (next) {
-  if (!this.orderId) {
-    const prefix = 400 + Math.floor(Math.random() * 100);
-    const suffix = 1000 + Math.floor(Math.random() * 9000);
-    this.orderId = `${prefix}-${suffix}`;
-  }
-  next();
-});
 
 module.exports = mongoose.model("Order", orderSchema);

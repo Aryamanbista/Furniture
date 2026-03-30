@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { Heart } from "lucide-react";
 import StarRating from "./ui/StarRating";
+import { useWishlist } from "../context/WishlistContext";
 
 const ProductCard = ({ product }) => {
   const {
@@ -13,8 +15,16 @@ const ProductCard = ({ product }) => {
     image,
     isSale,
     category,
+    inStock,
   } = product;
   const productId = _id || id;
+  const { toggleWishlist, isInWishlist } = useWishlist();
+  const isSaved = isInWishlist(productId);
+
+  const handleWishlistToggle = async (e) => {
+    e.preventDefault();
+    await toggleWishlist(product);
+  };
 
   return (
     <Link to={`/product/${productId}`} className="group block">
@@ -24,6 +34,21 @@ const ProductCard = ({ product }) => {
             Sale
           </span>
         )}
+        {!inStock && (
+          <span className="absolute top-12 left-3 bg-red-600/90 backdrop-blur-sm px-2 py-1 text-[10px] font-medium tracking-wider uppercase z-20 shadow-sm text-white">
+            Out of Stock
+          </span>
+        )}
+        <button
+          onClick={handleWishlistToggle}
+          className="absolute top-3 right-3 z-20 p-2 rounded-full bg-white/80 hover:bg-white backdrop-blur-md shadow-sm transition-all"
+        >
+          <Heart
+            className={`w-4 h-4 transition-colors ${
+              isSaved ? "fill-red-500 stroke-red-500" : "stroke-zinc-600"
+            }`}
+          />
+        </button>
         <motion.img
           src={image}
           alt={name}
