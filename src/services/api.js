@@ -116,6 +116,11 @@ export const storesAPI = {
 // --- Admin API ---
 export const adminAPI = {
   getReports: (type = "monthly") => apiRequest(`/admin/reports?type=${type}`),
+  getOrders: () => apiRequest("/admin/orders"),
+  updateOrderStatus: (id, status) => apiRequest(`/admin/orders/${id}/status`, {
+    method: "PUT",
+    body: JSON.stringify({ status })
+  }),
 };
 
 // --- Wishlist API ---

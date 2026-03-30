@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { useApp } from "../context/AppContext";
 import { useAuth } from "../context/AuthContext";
+import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -31,7 +32,7 @@ const Checkout = () => {
     email: "",
   });
 
-  const [paymentMethod, setPaymentMethod] = useState("esewa"); // esewa, khalti, cod
+  const [paymentMethod, setPaymentMethod] = useState("paypal"); // paypal, esewa, khalti, cod
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [processing, setProcessing] = useState(false);
 
@@ -62,6 +63,8 @@ const Checkout = () => {
 
   const handlePlaceOrder = (e) => {
     e.preventDefault();
+    if (paymentMethod === "paypal") return;
+    
     setProcessing(true);
 
     // Simulate API call
@@ -81,6 +84,13 @@ const Checkout = () => {
   };
 
   const paymentMethods = [
+    {
+      id: "paypal",
+      name: "PayPal",
+      color: "bg-[#003087]",
+      textColor: "text-white",
+      description: "Pay securely with PayPal Sandbox",
+    },
     {
       id: "esewa",
       name: "eSewa",
@@ -371,23 +381,60 @@ const Checkout = () => {
                 </div>
               </div>
 
-              <button
-                type="submit"
-                disabled={processing}
-                className="w-full py-4 bg-primary text-primary-foreground rounded-xl font-bold text-lg shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5 transition-all disabled:opacity-70 disabled:hover:translate-y-0 flex items-center justify-center gap-2"
-              >
-                {processing ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Processing...
-                  </>
-                ) : (
-                  <>
-                    Place Order
-                    <ChevronRight className="w-5 h-5" />
-                  </>
-                )}
-              </button>
+              {paymentMethod === "paypal" ? (
+                <div className="w-full relative z-0">
+                  <PayPalScriptProvider options={{ "client-id": "test", currency: "USD" }}>
+                    <PayPalButtons
+                      style={{ layout: "vertical", shape: "rect", color: "blue" }}
+                      createOrder={(data, actions) => {
+                        return actions.order.create({
+                          purchase_units: [
+                            {
+                              description: checkoutProduct.name,
+                              amount: {
+                                value: (total / 135).toFixed(2), // Rough NPR to USD conversion
+                              },
+                            },
+                          ],
+                        });
+                      }}
+                      onApprove={(data, actions) => {
+                        return actions.order.capture().then((details) => {
+                          setProcessing(true);
+                          const paymentDetails = {
+                            paymentMethod: "paypal",
+                            transactionId: details.id,
+                            status: "COMPLETED",
+                            paidAt: new Date().toISOString(),
+                          };
+                          addOrder(checkoutProduct, shipping, paymentDetails);
+                          setProcessing(false);
+                          setPaymentSuccess(true);
+                          setTimeout(() => navigate("/orders"), 3000);
+                        });
+                      }}
+                    />
+                  </PayPalScriptProvider>
+                </div>
+              ) : (
+                <button
+                  type="submit"
+                  disabled={processing}
+                  className="w-full py-4 bg-primary text-primary-foreground rounded-xl font-bold text-lg shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5 transition-all disabled:opacity-70 disabled:hover:translate-y-0 flex items-center justify-center gap-2"
+                >
+                  {processing ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      Place Order
+                      <ChevronRight className="w-5 h-5" />
+                    </>
+                  )}
+                </button>
+              )}
 
               <div className="mt-6 flex items-center justify-center gap-2 text-xs text-muted-foreground">
                 <ShieldCheck className="w-4 h-4 text-green-500" />

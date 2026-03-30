@@ -71,6 +71,13 @@ const AdminDashboard = () => {
         </div>
         <div className="flex gap-4">
           <Link
+            to="/admin/orders"
+            className="flex items-center gap-2 bg-secondary text-foreground border border-border px-5 py-2.5 rounded-full font-medium hover:bg-secondary/80 transition-colors"
+          >
+            <ArchiveBoxIcon className="w-5 h-5" />
+            Manage Orders
+          </Link>
+          <Link
             to="/admin/products"
             className="flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-full font-medium hover:bg-primary/90 transition-colors"
           >

@@ -36,4 +36,45 @@ router.get("/reports", auth, requireAdmin, async (req, res) => {
   }
 });
 
+// GET /api/admin/orders - Get all orders
+router.get("/orders", auth, requireAdmin, async (req, res) => {
+  try {
+    // We can populate 'user' if it's referenced. Let's populate name/email.
+    const orders = await Order.find().populate("user", "name email").sort({ date: -1 });
+    res.json(orders);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// PUT /api/admin/orders/:id/status - Update order status
+router.put("/orders/:id/status", auth, requireAdmin, async (req, res) => {
+  try {
+    const { status } = req.body;
+    const allowedStatuses = ["processing", "shipped", "delivered", "cancelled"];
+    
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({ error: "Invalid status" });
+    }
+
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+
+    order.status = status;
+    
+    // Set deliveredDate automatically if it transition to delivered
+    if (status === "delivered" && !order.deliveredDate) {
+      const options = { year: "numeric", month: "short", day: "numeric" };
+      order.deliveredDate = new Date().toLocaleDateString("en-US", options);
+    }
+    
+    await order.save();
+    res.json(order);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;

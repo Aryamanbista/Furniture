@@ -79,28 +79,68 @@ const Header = () => {
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
             <Link
               to="/shop"
-              className="text-muted-foreground hover:text-foreground transition-colors"
+              className={`relative py-1 transition-colors ${
+                location.pathname === "/shop"
+                  ? "text-primary"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
             >
               Shop
+              {location.pathname === "/shop" && (
+                <motion.div
+                  layoutId="nav-underline"
+                  className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary rounded-full"
+                />
+              )}
             </Link>
             <Link
               to="/about"
-              className="text-muted-foreground hover:text-foreground transition-colors"
+              className={`relative py-1 transition-colors ${
+                location.pathname === "/about"
+                  ? "text-primary"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
             >
               About
+              {location.pathname === "/about" && (
+                <motion.div
+                  layoutId="nav-underline"
+                  className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary rounded-full"
+                />
+              )}
             </Link>
             <Link
               to="/store-locator"
-              className="text-muted-foreground hover:text-foreground transition-colors"
+              className={`relative py-1 transition-colors ${
+                location.pathname === "/store-locator"
+                  ? "text-primary"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
             >
               Showrooms
+              {location.pathname === "/store-locator" && (
+                <motion.div
+                  layoutId="nav-underline"
+                  className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary rounded-full"
+                />
+              )}
             </Link>
             {user?.role === "admin" && (
               <Link
                 to="/admin"
-                className="text-primary font-semibold hover:text-primary/80 transition-colors"
+                className={`relative py-1 transition-colors ${
+                  location.pathname?.startsWith("/admin")
+                    ? "text-primary font-bold"
+                    : "text-primary/70 font-semibold hover:text-primary"
+                }`}
               >
                 Admin Dashboard
+                {location.pathname?.startsWith("/admin") && (
+                  <motion.div
+                    layoutId="nav-underline"
+                    className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary rounded-full"
+                  />
+                )}
               </Link>
             )}
           </nav>
@@ -136,28 +176,32 @@ const Header = () => {
                 )}
               </button>
 
-              {/* Wishlist Link - Dominant */}
-              <Link
-                to="/wishlist"
-                className="p-2.5 relative rounded-full bg-rose-50 dark:bg-rose-500/10 text-rose-500 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-colors"
-                aria-label="Wishlist"
-              >
-                <Heart className="h-5 w-5" />
-                {wishlist.length > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-rose-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-background">
-                    {wishlist.length}
-                  </span>
-                )}
-              </Link>
+              {isAuthenticated && (
+                <>
+                  {/* Wishlist Link - Dominant */}
+                  <Link
+                    to="/wishlist"
+                    className="p-2.5 relative rounded-full bg-rose-50 dark:bg-rose-500/10 text-rose-500 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-colors"
+                    aria-label="Wishlist"
+                  >
+                    <Heart className="h-5 w-5" />
+                    {wishlist.length > 0 && (
+                      <span className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-rose-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-background">
+                        {wishlist.length}
+                      </span>
+                    )}
+                  </Link>
 
-              {/* Orders/Cart Link - Dominant */}
-              <Link
-                to="/orders"
-                className="p-2.5 rounded-full bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-500/20 transition-colors"
-                aria-label="Orders"
-              >
-                <ShoppingBag className="h-5 w-5" />
-              </Link>
+                  {/* Orders/Cart Link - Dominant */}
+                  <Link
+                    to="/orders"
+                    className="p-2.5 rounded-full bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-500/20 transition-colors"
+                    aria-label="Orders"
+                  >
+                    <ShoppingBag className="h-5 w-5" />
+                  </Link>
+                </>
+              )}
 
               {/* User Menu */}
               <div className="relative ml-1">
@@ -256,34 +300,54 @@ const Header = () => {
               <nav className="flex flex-col gap-2">
                 <Link
                   to="/shop"
-                  className="px-4 py-2.5 rounded-lg hover:bg-secondary text-sm font-medium"
+                  className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                    location.pathname === "/shop"
+                      ? "bg-primary/10 text-primary"
+                      : "hover:bg-secondary text-foreground"
+                  }`}
                 >
                   Shop
                 </Link>
                 {isAuthenticated && (
                   <Link
                     to="/wishlist"
-                    className="px-4 py-2.5 rounded-lg hover:bg-secondary text-sm font-medium flex items-center gap-2"
+                    className={`px-4 py-2.5 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors ${
+                      location.pathname === "/wishlist"
+                        ? "bg-rose-500/10 text-rose-500"
+                        : "hover:bg-secondary text-foreground"
+                    }`}
                   >
                     <Heart className="w-4 h-4" /> Wishlist
                   </Link>
                 )}
                 <Link
                   to="/about"
-                  className="px-4 py-2.5 rounded-lg hover:bg-secondary text-sm font-medium"
+                  className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                    location.pathname === "/about"
+                      ? "bg-primary/10 text-primary"
+                      : "hover:bg-secondary text-foreground"
+                  }`}
                 >
                   About
                 </Link>
                 <Link
                   to="/store-locator"
-                  className="px-4 py-2.5 rounded-lg hover:bg-secondary text-sm font-medium"
+                  className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                    location.pathname === "/store-locator"
+                      ? "bg-primary/10 text-primary"
+                      : "hover:bg-secondary text-foreground"
+                  }`}
                 >
                   Showrooms
                 </Link>
                 {user?.role === "admin" && (
                   <Link
                     to="/admin"
-                    className="px-4 py-2.5 rounded-lg hover:bg-secondary text-sm font-medium text-primary"
+                    className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                      location.pathname?.startsWith("/admin")
+                        ? "bg-primary/10 text-primary font-bold"
+                        : "hover:bg-secondary text-primary"
+                    }`}
                   >
                     Admin Dashboard
                   </Link>

@@ -21,6 +21,7 @@ import OrderHistory from "./pages/OrderHistory";
 import StoreLocator from "./pages/StoreLocator";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminProducts from "./pages/AdminProducts";
+import AdminOrders from "./pages/AdminOrders";
 import Wishlist from "./pages/Wishlist";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
@@ -51,6 +52,9 @@ function App() {
               <div className="min-h-screen flex flex-col bg-background text-foreground transition-colors duration-300">
               <Layout>
                 <Routes>
+                  <Route path="/admin/orders" element={<AdminOrders />} />
+                  <Route path="/admin/products" element={<AdminProducts />} />
+                  <Route path="/admin" element={<AdminDashboard />} />
                   <Route path="/" element={<Home />} />
                   <Route path="/shop" element={<Shop />} />
                   <Route path="/about" element={<About />} />
@@ -61,8 +65,6 @@ function App() {
                   <Route path="/receipt" element={<Receipt />} />
                   <Route path="/orders" element={<OrderHistory />} />
                   <Route path="/store-locator" element={<StoreLocator />} />
-                  <Route path="/admin" element={<AdminDashboard />} />
-                  <Route path="/admin/products" element={<AdminProducts />} />
                   <Route path="/wishlist" element={<Wishlist />} />
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/settings" element={<Settings />} />

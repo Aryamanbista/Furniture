@@ -24,7 +24,7 @@ const Modal = ({ isOpen, onClose, title, children }) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+            className="absolute inset-0 bg-background/80 backdrop-blur-md dark:bg-black/80"
             onClick={onClose}
           />
 
@@ -34,19 +34,19 @@ const Modal = ({ isOpen, onClose, title, children }) => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
-            className="relative w-full max-w-lg glass-card overflow-hidden"
+            className="relative w-full max-w-lg bg-card border border-border shadow-2xl rounded-3xl overflow-hidden"
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-white/10">
-              <h2 className="text-lg font-semibold text-white">{title}</h2>
+            <div className="flex items-center justify-between p-6 border-b border-border bg-secondary/10">
+              <h2 className="text-xl font-display font-medium text-foreground">{title}</h2>
               <motion.button
                 whileHover={{ scale: 1.1, rotate: 90 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={onClose}
-                className="p-2 rounded-xl hover:bg-white/10 transition-colors"
+                className="p-2 rounded-xl text-muted-foreground hover:bg-secondary transition-colors"
               >
                 <svg
-                  className="w-5 h-5 text-gray-400"
+                  className="w-5 h-5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -62,7 +62,7 @@ const Modal = ({ isOpen, onClose, title, children }) => {
             </div>
 
             {/* Body */}
-            <div className="p-6 max-h-[70vh] overflow-y-auto">{children}</div>
+            <div className="p-6 max-h-[75vh] overflow-y-auto bg-card">{children}</div>
           </motion.div>
         </div>
       )}

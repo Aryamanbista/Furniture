@@ -123,7 +123,7 @@ export const stores = [
 
 // Calculate distance between two points using Haversine formula
 export const calculateDistance = (lat1, lng1, lat2, lng2) => {
-  const R = 3959; // Earth's radius in miles
+  const R = 6371; // Earth's radius in kilometers
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
   const dLng = ((lng2 - lng1) * Math.PI) / 180;
   const a =

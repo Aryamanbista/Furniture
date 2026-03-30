@@ -6,6 +6,7 @@ import { useApp } from "../context/AppContext";
 import { generateReceipt } from "../utils/pdfGenerator";
 import Modal from "../components/ui/Modal";
 import StarRating from "../components/ui/StarRating";
+import { ClockIcon, PhotoIcon, XMarkIcon } from "@heroicons/react/24/outline";
 
 const OrderHistory = () => {
   const navigate = useNavigate();
@@ -20,6 +21,7 @@ const OrderHistory = () => {
     rating: 5,
     title: "",
     content: "",
+    imagePreview: null,
   });
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -66,9 +68,21 @@ const OrderHistory = () => {
         rating: newReview.rating,
         title: newReview.title,
         content: newReview.content,
+        image: newReview.imagePreview,
       });
     setShowReviewModal(false);
-    setNewReview({ rating: 5, title: "", content: "" });
+    setNewReview({ rating: 5, title: "", content: "", imagePreview: null });
+  };
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setNewReview((prev) => ({ ...prev, imagePreview: reader.result }));
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const getStatusColor = (status) => {
@@ -224,9 +238,9 @@ const OrderHistory = () => {
                           className={`ml-auto px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}
                         >
                           {order.status === "delivered" &&
-                            `✓ Delivered ${order.deliveredDate}`}
+                            `✓ Delivered ${order.deliveredDate || ""}`}
                           {order.status === "shipped" &&
-                            `🚚 ${order.estimatedDelivery}`}
+                            `🚚 ${order.estimatedDelivery || "Shipped"}`}
                           {order.status === "processing" && "⏳ Processing"}
                         </div>
                       </div>
@@ -265,16 +279,19 @@ const OrderHistory = () => {
                                     </svg>
                                     Reviewed
                                   </span>
+                                ) : order.status === "delivered" ? (
+                                  <motion.button
+                                    whileHover={{ scale: 1.02 }}
+                                    onClick={() => handleWriteReview(item)}
+                                    className="px-3 py-1.5 bg-primary/10 text-primary text-xs font-medium rounded-lg hover:bg-primary/20 transition-colors"
+                                  >
+                                    Leave Review
+                                  </motion.button>
                                 ) : (
-                                  order.status === "delivered" && (
-                                    <motion.button
-                                      whileHover={{ scale: 1.02 }}
-                                      onClick={() => handleWriteReview(item)}
-                                      className="px-3 py-1.5 bg-primary/10 text-primary text-xs font-medium rounded-lg hover:bg-primary/20 transition-colors"
-                                    >
-                                      Leave Review
-                                    </motion.button>
-                                  )
+                                  <span className="inline-flex items-center gap-1 text-xs text-muted-foreground bg-secondary px-2 py-1 rounded-lg">
+                                    <ClockIcon className="w-3 h-3" />
+                                    Review after delivery
+                                  </span>
                                 )}
                                 <Link
                                   to={`/product/${item.productId}`}
@@ -384,68 +401,109 @@ const OrderHistory = () => {
             )}
       </div>
 
-      {/* Write Review Modal */}
+      {/* Premium Write Review Modal */}
       <Modal
         isOpen={showReviewModal}
         onClose={() => setShowReviewModal(false)}
-        title="Write a Review"
+        title="Share Your Experience"
       >
         {selectedItem && (
-          <div className="space-y-5">
-            <div className="flex items-center gap-3 pb-4 border-b border-border">
+          <div className="space-y-6">
+            {/* Product Header */}
+            <div className="flex items-center gap-4 p-4 bg-secondary/30 rounded-2xl border border-border">
               <img
                 src={selectedItem.image}
                 alt={selectedItem.name}
-                className="w-16 h-12 object-cover rounded-xl"
+                className="w-16 h-16 object-cover rounded-xl shadow-sm"
               />
-              <p className="font-medium text-foreground">{selectedItem.name}</p>
+              <div>
+                <p className="font-semibold text-foreground text-sm line-clamp-1">{selectedItem.name}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">We'd love to hear your thoughts!</p>
+              </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-muted-foreground mb-3">
-                Your Rating
+
+            {/* Rating */}
+            <div className="flex flex-col items-center py-2">
+              <label className="block text-sm font-semibold text-foreground mb-3">
+                Tap to rate
               </label>
               <StarRating
                 rating={newReview.rating}
-                size="xl"
+                size="2xl"
                 interactive
                 onChange={(r) => setNewReview({ ...newReview, rating: r })}
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-muted-foreground mb-2">
-                Title
-              </label>
-              <input
-                type="text"
-                value={newReview.title}
-                onChange={(e) =>
-                  setNewReview({ ...newReview, title: e.target.value })
-                }
-                placeholder="Summarize your experience"
-                className="w-full bg-background border border-border rounded-xl px-4 py-3 text-foreground placeholder-muted-foreground outline-none focus:ring-2 focus:ring-ring focus:border-border transition-all"
-              />
+
+            {/* Inputs */}
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-muted-foreground mb-1.5 ml-1 uppercase tracking-wider">
+                  Review Title
+                </label>
+                <input
+                  type="text"
+                  value={newReview.title}
+                  onChange={(e) =>
+                    setNewReview({ ...newReview, title: e.target.value })
+                  }
+                  placeholder="Summarize your experience"
+                  className="w-full bg-secondary/50 border border-border rounded-xl px-4 py-3.5 text-sm text-foreground placeholder-muted-foreground outline-none focus:ring-2 focus:ring-primary/20 focus:bg-background focus:border-primary transition-all"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-muted-foreground mb-1.5 ml-1 uppercase tracking-wider">
+                  Detailed Review
+                </label>
+                <textarea
+                  value={newReview.content}
+                  onChange={(e) =>
+                    setNewReview({ ...newReview, content: e.target.value })
+                  }
+                  placeholder="What did you like or dislike? How's the quality?"
+                  rows={4}
+                  className="w-full bg-secondary/50 border border-border rounded-xl px-4 py-3.5 text-sm text-foreground placeholder-muted-foreground outline-none focus:ring-2 focus:ring-primary/20 focus:bg-background focus:border-primary transition-all resize-none"
+                />
+              </div>
+
+              {/* Image Upload */}
+              <div>
+                <label className="block text-xs font-semibold text-muted-foreground mb-1.5 ml-1 uppercase tracking-wider">
+                  Add Photo
+                </label>
+                {newReview.imagePreview ? (
+                  <div className="relative w-full h-32 rounded-xl overflow-hidden border border-border shadow-sm group">
+                    <img src={newReview.imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <button
+                        onClick={() => setNewReview({ ...newReview, imagePreview: null })}
+                        className="p-2 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/90 transition-colors shadow-lg"
+                      >
+                        <XMarkIcon className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-border rounded-xl cursor-pointer hover:bg-secondary/30 hover:border-primary/50 transition-all bg-secondary/10">
+                    <div className="flex flex-col items-center justify-center pb-2 pt-3">
+                      <PhotoIcon className="w-8 h-8 text-muted-foreground mb-2 group-hover:text-primary transition-colors" />
+                      <p className="text-xs text-muted-foreground font-medium">Click to upload an image</p>
+                    </div>
+                    <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
+                  </label>
+                )}
+              </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-muted-foreground mb-2">
-                Review
-              </label>
-              <textarea
-                value={newReview.content}
-                onChange={(e) =>
-                  setNewReview({ ...newReview, content: e.target.value })
-                }
-                placeholder="Share your thoughts..."
-                rows={4}
-                className="w-full bg-background border border-border rounded-xl px-4 py-3 text-foreground placeholder-muted-foreground outline-none focus:ring-2 focus:ring-ring focus:border-border transition-all resize-none"
-              />
-            </div>
+
             <motion.button
               whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.98 }}
               onClick={submitReview}
               disabled={!newReview.title || !newReview.content}
-              className="w-full py-4 bg-primary text-primary-foreground rounded-xl font-semibold shadow-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 transition-all"
+              className="w-full py-4 mt-2 bg-primary text-primary-foreground rounded-xl font-bold text-sm shadow-lg shadow-primary/25 disabled:opacity-50 disabled:shadow-none disabled:cursor-not-allowed hover:shadow-xl hover:shadow-primary/30 transition-all flex items-center justify-center gap-2"
             >
-              Submit Review
+              Post Review
             </motion.button>
           </div>
         )}
